@@ -26,6 +26,7 @@
             --button-hover: linear-gradient(135deg, #5a6fd8, #6a419a);
             --icon-color: #fff;
             --particle-color: rgba(102, 126, 234, 0.1);
+            --pattern-color: rgba(102, 126, 234, 0.1);
         }
 
         [data-theme="dark"] {
@@ -40,6 +41,7 @@
             --button-hover: linear-gradient(135deg, #4a5fc8, #5a318a);
             --icon-color: #e2e8f0;
             --particle-color: rgba(90, 103, 216, 0.1);
+            --pattern-color: rgba(144, 170, 255, 0.09);
         }
 
         * {
@@ -75,6 +77,20 @@
                         radial-gradient(circle at 80% 20%, var(--particle-color) 0%, transparent 50%),
                         radial-gradient(circle at 40% 80%, var(--particle-color) 0%, transparent 50%);
             animation: particles 20s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                radial-gradient(circle at 1px 1px, var(--pattern-color) 1px, transparent 0),
+                linear-gradient(135deg, transparent 0%, rgba(118, 75, 162, 0.08) 50%, transparent 100%);
+            background-size: 26px 26px, 220px 220px;
+            background-position: 0 0, center;
+            opacity: 0.6;
+            pointer-events: none;
             z-index: -1;
         }
 
@@ -205,7 +221,7 @@
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
-        
+
         .sidebar-button:active {
             transform: scale(0.96);
             box-shadow: 0 1px 4px rgba(102, 126, 234, 0.3);
@@ -547,6 +563,21 @@
             box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
+        .option-group .input-row {
+            display: flex;
+            flex-direction: column;
+            padding: 8px 10px;
+            border: 1px solid rgba(102, 126, 234, 0.15);
+            border-radius: 14px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.55);
+        }
+
+        [data-theme="dark"] .option-group .input-row {
+            background: rgba(45, 55, 72, 0.5);
+            border-color: rgba(144, 170, 255, 0.3);
+        }
+
         @keyframes slideDown {
             from {
                 opacity: 0;
@@ -664,14 +695,20 @@
 
             .sidebar {
                 transform: translateX(100%);
-                width: 75%;
-                max-width: 320px;
-                border-radius: 15px 0 0 15px;
+                width: min(250px, calc(100vw - 24px));
+                max-width: 250px;
+                height: auto;
+                max-height: calc(100vh - 90px);
+                top: 60px;
+                right: 12px;
+                border-radius: 16px;
                 transition: transform 0.3s ease-out;
                 will-change: transform;
                 -webkit-transform: translateX(100%);
                 backface-visibility: hidden;
                 -webkit-backface-visibility: hidden;
+                border: 1px solid var(--glass-border);
+                border-left: 1px solid var(--glass-border);
             }
 
             .sidebar.active {
@@ -744,6 +781,11 @@
                 padding: 25px 20px;
             }
 
+            .option-group .input-row {
+                padding: 6px 8px;
+                margin-bottom: 8px;
+            }
+
             /* תיקון בעיות קלט במובייל */
             textarea,
             input[type="text"],
@@ -762,7 +804,7 @@
                 font-size: 16px;
                 padding: 14px 16px;
             }
-            
+
             button:active {
                 transform: scale(0.96);
             }
@@ -775,6 +817,10 @@
             body::before {
                 animation: none;
                 opacity: 0.5;
+            }
+
+            body::after {
+                opacity: 0.45;
             }
 
             h2 {
@@ -816,7 +862,7 @@
                 border: 2px solid rgba(102, 126, 234, 0.3);
                 color: var(--text-color);
             }
-            
+
             input[type="text"]:focus,
             textarea:focus,
             select:focus {
@@ -833,7 +879,7 @@
                 border: 2px solid rgba(102, 126, 234, 0.5);
                 color: var(--text-color);
             }
-            
+
             [data-theme="dark"] input[type="text"]:focus,
             [data-theme="dark"] textarea:focus,
             [data-theme="dark"] select:focus {
@@ -879,7 +925,7 @@
         <div class="sidebar-header">
             <h3>כלים</h3>
         </div>
-        
+
         <div id="language-select-container">
             <label for="language-select">שפה:</label>
             <select id="language-select">
@@ -942,9 +988,6 @@
             <button class="sidebar-button" data-action="qrCode" data-i18n="actionQrCode">
                 <i class="fas fa-qrcode"></i> יצירת קוד QR
             </button>
-            <button class="sidebar-button" data-action="dayOfWeek" data-i18n="actionDayOfWeek">
-                <i class="fas fa-calendar-day"></i> יום בשבוע מתאריך
-            </button>
         </div>
 
         <button class="theme-toggle" id="theme-toggle">
@@ -1002,11 +1045,14 @@
 
             <div id="lengthConvert-options" class="option-group">
                 <div class="action-header" data-i18n="actionLengthConvert">המרת אורך</div>
-                <label for="mainInputLength" data-i18n="lengthValueLabel">הכנס ערך להמרה:</label>
-                <input type="text" id="mainInputLength" data-i18n-placeholder="lengthValuePlaceholder"
-                    placeholder="הכנס מספר">
-                <label for="length_from" data-i18n="lengthFromLabel">מ:</label>
-                <select id="length_from">
+                <div class="input-row">
+                    <label for="mainInputLength" data-i18n="lengthValueLabel">הכנס ערך להמרה:</label>
+                    <input type="text" id="mainInputLength" data-i18n-placeholder="lengthValuePlaceholder"
+                        placeholder="הכנס מספר">
+                </div>
+                <div class="input-row">
+                    <label for="length_from" data-i18n="lengthFromLabel">מ:</label>
+                    <select id="length_from">
                     <option value="cm" data-i18n="unitCentimeters">סנטימטרים</option>
                     <option value="m" data-i18n="unitMeters">מטרים</option>
                     <option value="km" data-i18n="unitKilometers">קילומטרים</option>
@@ -1014,9 +1060,11 @@
                     <option value="foot" data-i18n="unitFeet">פיט</option>
                     <option value="yard" data-i18n="unitYards">יארד</option>
                     <option value="mile" data-i18n="unitMiles">מיילים</option>
-                </select>
-                <label for="length_to" data-i18n="lengthToLabel">ל:</label>
-                <select id="length_to">
+                    </select>
+                </div>
+                <div class="input-row">
+                    <label for="length_to" data-i18n="lengthToLabel">ל:</label>
+                    <select id="length_to">
                     <option value="cm" data-i18n="unitCentimeters">סנטימטרים</option>
                     <option value="m" data-i18n="unitMeters">מטרים</option>
                     <option value="km" data-i18n="unitKilometers">קילומטרים</option>
@@ -1024,7 +1072,8 @@
                     <option value="foot" data-i18n="unitFeet">פיט</option>
                     <option value="yard" data-i18n="unitYards">יארד</option>
                     <option value="mile" data-i18n="unitMiles">מיילים</option>
-                </select>
+                    </select>
+                </div>
             </div>
 
             <div id="wordCount-options" class="option-group">
@@ -1054,45 +1103,55 @@
 
             <div id="financialCalculator-options" class="option-group">
                 <div class="action-header" data-i18n="actionFinancialCalculator">מחשבון פיננסי</div>
-                <label for="principal" data-i18n="principalLabel">סכום הקרן:</label>
-                <input type="text" id="principal" data-i18n-placeholder="principalPlaceholder" placeholder="הכנס סכום">
-                <label for="interestRate" data-i18n="interestRateLabel">שיעור ריבית שנתי (%):</label>
-                <input type="text" id="interestRate" data-i18n-placeholder="interestRatePlaceholder"
-                    placeholder="הכנס ריבית">
-                <label for="years" data-i18n="yearsLabel">מספר שנים:</label>
-                <input type="text" id="years" data-i18n-placeholder="yearsPlaceholder" placeholder="הכנס שנים">
+                <div class="input-row">
+                    <label for="principal" data-i18n="principalLabel">סכום הקרן:</label>
+                    <input type="text" id="principal" data-i18n-placeholder="principalPlaceholder" placeholder="הכנס סכום">
+                </div>
+                <div class="input-row">
+                    <label for="interestRate" data-i18n="interestRateLabel">שיעור ריבית שנתי (%):</label>
+                    <input type="text" id="interestRate" data-i18n-placeholder="interestRatePlaceholder"
+                        placeholder="הכנס ריבית">
+                </div>
+                <div class="input-row">
+                    <label for="years" data-i18n="yearsLabel">מספר שנים:</label>
+                    <input type="text" id="years" data-i18n-placeholder="yearsPlaceholder" placeholder="הכנס שנים">
+                </div>
             </div>
 
             <div id="bmi-options" class="option-group">
                 <div class="action-header" data-i18n="actionBMI">חישוב BMI</div>
-                <label for="weight" data-i18n="weightLabel">משקל (ק"ג):</label>
-                <input type="text" id="weight" data-i18n-placeholder="weightPlaceholder" placeholder="הכנס משקל">
-                <label for="height" data-i18n="heightLabel">גובה (ס"מ):</label>
-                <input type="text" id="height" data-i18n-placeholder="heightPlaceholder" placeholder="הכנס גובה">
+                <div class="input-row">
+                    <label for="weight" data-i18n="weightLabel">משקל (ק"ג):</label>
+                    <input type="text" id="weight" data-i18n-placeholder="weightPlaceholder" placeholder="הכנס משקל">
+                </div>
+                <div class="input-row">
+                    <label for="height" data-i18n="heightLabel">גובה (ס"מ):</label>
+                    <input type="text" id="height" data-i18n-placeholder="heightPlaceholder" placeholder="הכנס גובה">
+                </div>
             </div>
 
             <div id="temperatureConvert-options" class="option-group">
                 <div class="action-header" data-i18n="actionTemperatureConvert">המרת טמפרטורה</div>
-                <label for="mainInputTemp" data-i18n="tempValueLabel">הכנס ערך להמרה:</label>
-                <input type="text" id="mainInputTemp" data-i18n-placeholder="tempValuePlaceholder" placeholder="הכנס מספר">
-                <label for="temp_from" data-i18n="tempFromLabel">מ:</label>
-                <select id="temp_from">
+                <div class="input-row">
+                    <label for="mainInputTemp" data-i18n="tempValueLabel">הכנס ערך להמרה:</label>
+                    <input type="text" id="mainInputTemp" data-i18n-placeholder="tempValuePlaceholder" placeholder="הכנס מספר">
+                </div>
+                <div class="input-row">
+                    <label for="temp_from" data-i18n="tempFromLabel">מ:</label>
+                    <select id="temp_from">
                     <option value="celsius">צלזיוס</option>
                     <option value="fahrenheit">פרנהייט</option>
                     <option value="kelvin">קלווין</option>
-                </select>
-                <label for="temp_to" data-i18n="tempToLabel">ל:</label>
-                <select id="temp_to">
+                    </select>
+                </div>
+                <div class="input-row">
+                    <label for="temp_to" data-i18n="tempToLabel">ל:</label>
+                    <select id="temp_to">
                     <option value="celsius">צלזיוס</option>
                     <option value="fahrenheit">פרנהייט</option>
                     <option value="kelvin">קלווין</option>
-                </select>
-            </div>
-
-            <div id="dayOfWeek-options" class="option-group">
-                <div class="action-header" data-i18n="actionDayOfWeek">יום בשבוע מתאריך</div>
-                <label for="dateInput" data-i18n="dateLabel">הכנס תאריך (YYYY-MM-DD):</label>
-                <input type="text" id="dateInput" data-i18n-placeholder="datePlaceholder" placeholder="הכנס תאריך">
+                    </select>
+                </div>
             </div>
 
             <div id="imageConverter-options" class="option-group">
@@ -1165,7 +1224,6 @@
         const financialCalculatorOptionsDiv = document.getElementById('financialCalculator-options');
         const bmiOptionsDiv = document.getElementById('bmi-options');
         const temperatureOptionsDiv = document.getElementById('temperatureConvert-options');
-        const dayOfWeekOptionsDiv = document.getElementById('dayOfWeek-options');
         const imageConverterOptionsDiv = document.getElementById('imageConverter-options');
 
         // פונקציונליות תפריט המבורגר
@@ -1174,7 +1232,7 @@
             e.stopPropagation();
             sidebar.classList.toggle('active');
             sidebarOverlay.classList.toggle('active');
-            
+
             // מניעת גלילה כשהתפריט פתוח במובייל
             if (sidebar.classList.contains('active')) {
                 document.body.style.overflow = 'hidden';
@@ -1232,7 +1290,6 @@
                 actionFinancialCalculator: "מחשבון פיננסי",
                 actionBMI: "חישוב BMI",
                 actionTemperatureConvert: "המרת טמפרטורה",
-                actionDayOfWeek: "יום בשבוע מתאריך",
                 actionImageConverter: "ממיר תמונות",
                 inputLabel: "הכנס טקסט או ערך:",
                 inputPlaceholder: "הזן טקסט או מספר לפעולה הרצויה",
@@ -1269,8 +1326,6 @@
                 tempValuePlaceholder: "הכנס מספר",
                 tempFromLabel: "מ:",
                 tempToLabel: "ל:",
-                dateLabel: "הכנס תאריך (YYYY-MM-DD):",
-                datePlaceholder: "הכנס תאריך",
                 processButton: "בצע",
                 resultText: "תוצאה תופיע כאן",
                 calculateError: "אני מצטער, אני לא יכול לחשב את ��ה.",
@@ -1295,7 +1350,7 @@
                 lengthConversionResult: "המרה מ{0} ל{1}: {2} {0} = {3} {1}.",
                 bmiResult: "ה-BMI שלך הוא: {0} ({1})",
                 temperatureConversionResult: "המרה מ{0} ל{1}: {2}° {0} = {3}° {1}",
-                dayOfWeekResult: "יום השבוע הוא: {0}",
+
                 bmiUnderweight: "תת משקל",
                 bmiNormal: "משקל תקין",
                 bmiOverweight: "עודף משקל",
@@ -1328,7 +1383,6 @@
                 actionFinancialCalculator: "Financial Calculator",
                 actionBMI: "Calculate BMI",
                 actionTemperatureConvert: "Temperature Conversion",
-                actionDayOfWeek: "Day of Week from Date",
                 actionImageConverter: "Image Converter",
                 inputLabel: "Enter Text or Value:",
                 inputPlaceholder: "Enter text or number for the desired action",
@@ -1365,9 +1419,7 @@
                 tempValuePlaceholder: "Enter number",
                 tempFromLabel: "From:",
                 tempToLabel: "To:",
-                dateLabel: "Enter date (YYYY-MM-DD):",
-                datePlaceholder: "Enter date",
-                processButton: "Process",
+                                processButton: "Process",
                 resultText: "Result will appear here",
                 calculateError: "I'm sorry, I can't calculate that.",
                 noTextEntered: "No text entered.",
@@ -1391,8 +1443,7 @@
                 lengthConversionResult: "Conversion from {0} to {1}: {2} {0} = {3} {1}.",
                 bmiResult: "Your BMI is: {0} ({1})",
                 temperatureConversionResult: "Conversion from {0} to {1}: {2}° {0} = {3}�� {1}",
-                dayOfWeekResult: "The day of the week is: {0}",
-                bmiUnderweight: "Underweight",
+                                bmiUnderweight: "Underweight",
                 bmiNormal: "Normal weight",
                 bmiOverweight: "Overweight",
                 bmiObese: "Obese",
@@ -1490,7 +1541,6 @@
                 case 'financialCalculator': return financialCalculatorOptionsDiv;
                 case 'bmi': return bmiOptionsDiv;
                 case 'temperatureConvert': return temperatureOptionsDiv;
-                case 'dayOfWeek': return dayOfWeekOptionsDiv;
                 case 'imageConverter': return imageConverterOptionsDiv;
                 default: return inputOptionsDiv;
             }
@@ -1587,7 +1637,7 @@
                     const type = convertType.value;
                     const mime = type === 'png' || type === 'jpeg' ? (type === 'png' ? 'image/png' : 'image/jpeg') : 'image/png';
                     const extension = type === 'jpeg' ? 'jpg' : 'png';
-                    
+
                     canvas.toBlob(function(blob) {
                         if (!blob) {
                             // Fallback for browsers that don't support toBlob
@@ -1599,7 +1649,7 @@
                             document.body.removeChild(link);
                             return;
                         }
-                        
+
                         const url = URL.createObjectURL(blob);
                         const link = document.createElement('a');
                         link.download = 'converted_image.' + extension;
@@ -1626,13 +1676,13 @@
         // הורדת תוצאה כקובץ טקסט
         downloadResultBtn.addEventListener('click', () => {
             if (!lastResult) return;
-            
+
             try {
                 const blob = new Blob([lastResult], { type: 'text/plain;charset=utf-8' });
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
-                
+
                 // שם קובץ מותאם לפעולה
                 let filename = 'result.txt';
                 switch(currentAction) {
@@ -1663,13 +1713,10 @@
                     case 'bmi':
                         filename = 'bmi_result.txt';
                         break;
-                    case 'dayOfWeek':
-                        filename = 'day_of_week.txt';
-                        break;
                     default:
                         filename = 'result.txt';
                 }
-                
+
                 link.download = filename;
                 document.body.appendChild(link);
                 link.click();
@@ -1781,7 +1828,7 @@
                             document.body.removeChild(link);
                             return;
                         }
-                        
+
                         // Modern browsers with better mobile support
                         const url = URL.createObjectURL(blob);
                         const link = document.createElement('a');
@@ -1869,14 +1916,6 @@
                 case 'fahrenheit': return celsius * 9/5 + 32;
                 case 'kelvin': return celsius + 273.15;
             }
-        }
-
-        function getDayOfWeek(dateString) {
-            const date = new Date(dateString);
-            if (isNaN(date.getTime())) return null;
-            const days = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
-            const daysEn = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-            return languageSelect.value === 'he' ? days[date.getDay()] : daysEn[date.getDay()];
         }
 
         downloadPngBtn.addEventListener('click', downloadQRAsPNG);
@@ -2069,24 +2108,6 @@
                         .replace('{3}', result.toFixed(2));
                     resultTextElement.textContent = lastResult;
                     downloadResultBtn.style.display = 'flex';
-                    break;
-
-                case 'dayOfWeek':
-                    const dateInput = document.getElementById('dateInput').value;
-                    if (!dateInput) {
-                        resultTextElement.textContent = i18n[languageSelect.value].noTextEntered;
-                        downloadResultBtn.style.display = 'none';
-                        return;
-                    }
-                    const day = getDayOfWeek(dateInput);
-                    if (day) {
-                        lastResult = i18n[languageSelect.value].dayOfWeekResult.replace('{0}', day);
-                        resultTextElement.textContent = lastResult;
-                        downloadResultBtn.style.display = 'flex';
-                    } else {
-                        resultTextElement.textContent = i18n[languageSelect.value].invalidNumber;
-                        downloadResultBtn.style.display = 'none';
-                    }
                     break;
 
                 case 'imageConverter':
