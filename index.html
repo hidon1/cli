@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <title>כלי רב-תכליתי: חשבון, חיפוש, א"ת ב"ש, גימטריה, ספירה, המרה ועוד</title>
@@ -64,6 +64,7 @@
             position: relative;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            min-height: var(--app-height, 100dvh);
         }
 
         body::before {
@@ -741,7 +742,7 @@
 
             .main-content {
                 margin-right: 0;
-                padding: 80px 15px 20px 15px;
+                padding: calc(80px + env(safe-area-inset-top, 0px)) 15px calc(20px + env(safe-area-inset-bottom, 0px)) 15px;
             }
 
             .sidebar-button {
@@ -779,6 +780,10 @@
             .container {
                 width: 95%;
                 padding: 25px 20px;
+            }
+
+            #input-options {
+                display: block;
             }
 
             .option-group .input-row {
@@ -1545,6 +1550,45 @@
                 default: return inputOptionsDiv;
             }
         }
+
+        function ensureMobileInputVisibility() {
+            if (window.innerWidth > 768 || currentAction !== 'select') {
+                return;
+            }
+            inputOptionsDiv.style.display = 'block';
+        }
+
+        function initDefaultActionForMobile() {
+            if (window.innerWidth <= 768) {
+                currentAction = 'calculate';
+                showOptions(calculateOptionsDiv);
+                const defaultButton = document.querySelector('.sidebar-button[data-action="calculate"]');
+                if (defaultButton) {
+                    defaultButton.classList.add('active');
+                }
+            } else {
+                currentAction = 'select';
+                showOptions(inputOptionsDiv);
+            }
+        }
+
+        function refreshViewportHeight() {
+            const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+            document.documentElement.style.setProperty('--app-height', `${viewportHeight}px`);
+        }
+
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', refreshViewportHeight);
+            window.visualViewport.addEventListener('scroll', refreshViewportHeight);
+        }
+
+        window.addEventListener('resize', () => {
+            refreshViewportHeight();
+            ensureMobileInputVisibility();
+        });
+
+        refreshViewportHeight();
+        initDefaultActionForMobile();
 
         themeToggle.addEventListener('click', () => {
             const currentTheme = document.body.getAttribute('data-theme');
