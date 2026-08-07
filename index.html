@@ -1,2170 +1,1161 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
-    <title>כלי רב-תכליתי: חשבון, חיפוש, א"ת ב"ש, גימטריה, ספירה, המרה ועוד</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --secondary-color: #5a67d8;
-            --accent-color: #ff6b6b;
-            --light-bg: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
-            --container-bg: rgba(255, 255, 255, 0.95);
-            --text-color: #2d3748;
-            --shadow: 0 10px 40px rgba(102, 126, 234, 0.15);
-            --border-radius: 25px;
-            --transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            --glass-bg: rgba(255, 255, 255, 0.1);
-            --glass-border: rgba(255, 255, 255, 0.2);
-            --sidebar-bg: linear-gradient(135deg, #f8f9fa 0%, #e2e8f0 100%);
-            --button-bg: linear-gradient(135deg, #667eea, #764ba2);
-            --button-hover: linear-gradient(135deg, #5a6fd8, #6a419a);
-            --icon-color: #fff;
-            --particle-color: rgba(102, 126, 234, 0.1);
-            --pattern-color: rgba(102, 126, 234, 0.1);
-        }
-
-        [data-theme="dark"] {
-            --light-bg: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
-            --container-bg: rgba(26, 32, 44, 0.95);
-            --text-color: #e2e8f0;
-            --shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            --glass-bg: rgba(26, 32, 44, 0.1);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --sidebar-bg: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
-            --button-bg: linear-gradient(135deg, #5a6fd8, #6a419a);
-            --button-hover: linear-gradient(135deg, #4a5fc8, #5a318a);
-            --icon-color: #e2e8f0;
-            --particle-color: rgba(90, 103, 216, 0.1);
-            --pattern-color: rgba(144, 170, 255, 0.09);
-        }
-
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            font-family: 'Heebo', 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            direction: rtl;
-            background: var(--light-bg);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            color: var(--text-color);
-            line-height: 1.6;
-            overflow-x: hidden;
-            position: relative;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            min-height: var(--app-height, 100dvh);
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at 20% 50%, var(--particle-color) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 20%, var(--particle-color) 0%, transparent 50%),
-                        radial-gradient(circle at 40% 80%, var(--particle-color) 0%, transparent 50%);
-            animation: particles 20s ease-in-out infinite;
-            z-index: -1;
-        }
-
-        body::after {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background-image:
-                radial-gradient(circle at 1px 1px, var(--pattern-color) 1px, transparent 0),
-                linear-gradient(135deg, transparent 0%, rgba(118, 75, 162, 0.08) 50%, transparent 100%);
-            background-size: 26px 26px, 220px 220px;
-            background-position: 0 0, center;
-            opacity: 0.6;
-            pointer-events: none;
-            z-index: -1;
-        }
-
-        @keyframes particles {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 1; }
-        }
-
-        .sidebar {
-            position: fixed;
-            top: 0;
-            right: 0;
-            width: 280px;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            background: var(--sidebar-bg);
-            backdrop-filter: blur(25px);
-            border-left: 1px solid var(--glass-border);
-            padding: 20px 15px;
-            box-shadow: var(--shadow);
-            z-index: 100;
-            animation: slideInRight 0.8s ease-out;
-            overflow-y: auto;
-            transition: var(--transition);
-            -webkit-overflow-scrolling: touch;
-            will-change: transform;
-        }
-
-        .sidebar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--glass-border);
-        }
-
-        .sidebar-header h3 {
-            margin: 0;
-            font-size: 1.4em;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hamburger-btn {
-            display: none;
-            position: fixed;
-            top: 15px;
-            right: 15px;
-            z-index: 101;
-            background: var(--button-bg);
-            border: none;
-            border-radius: 12px;
-            padding: 12px 15px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-            transition: var(--transition);
-        }
-
-        .hamburger-btn i {
-            color: white;
-            font-size: 20px;
-        }
-
-        .hamburger-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        .category-group {
-            margin-bottom: 15px;
-        }
-
-        .category-title {
-            font-size: 0.85em;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: var(--secondary-color);
-            margin-bottom: 8px;
-            padding: 5px 10px;
-            background: rgba(102, 126, 234, 0.1);
-            border-radius: 8px;
-            letter-spacing: 0.5px;
-        }
-
-        @keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateX(100px) rotateY(90deg);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0) rotateY(0deg);
-            }
-        }
-
-        .sidebar-button {
-            background: var(--button-bg);
-            color: var(--icon-color);
-            border: none;
-            padding: 10px 12px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: var(--transition);
-            font-weight: 600;
-            text-align: center;
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            font-size: 12px;
-            white-space: nowrap;
-            min-height: 44px;
-            touch-action: manipulation;
-            -webkit-user-select: none;
-            user-select: none;
-        }
-
-        .sidebar-button:hover {
-            background: var(--button-hover);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-        }
-
-        .sidebar-button:active {
-            transform: scale(0.96);
-            box-shadow: 0 1px 4px rgba(102, 126, 234, 0.3);
-        }
-
-        .sidebar-button.active {
-            background: var(--accent-color);
-            box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        .sidebar-button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: left 0.6s;
-        }
-
-        .sidebar-button:hover::before {
-            left: 100%;
-        }
-
-        .sidebar-button i {
-            font-size: 14px;
-            min-width: 18px;
-        }
-
-        .theme-toggle {
-            margin-top: 15px;
-            background: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            transition: var(--transition);
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-
-        .theme-toggle:hover {
-            background: #ff5252;
-            transform: scale(1.05) rotate(5deg);
-        }
-
-        .theme-toggle i {
-            font-size: 14px;
-        }
-
-        .main-content {
-            flex: 1;
-            margin-right: 280px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 40px 20px;
-            transition: var(--transition);
-        }
-
-        .container {
-            background: var(--container-bg);
-            backdrop-filter: blur(30px);
-            padding: 30px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            margin-bottom: 20px;
-            width: 90%;
-            max-width: 700px;
-            animation: fadeInScale 1s ease-out;
-            border: 1px solid var(--glass-border);
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 6px;
-            background: var(--primary-color);
-            border-radius: var(--border-radius) var(--border-radius) 0 0;
-        }
-
-        .container::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            top: 0;
-            background: linear-gradient(45deg, transparent 49%, rgba(102, 126, 234, 0.05) 50%, transparent 51%);
-            animation: shimmer 4s ease-in-out infinite;
-            pointer-events: none;
-        }
-
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-
-        @keyframes fadeInScale {
-            from {
-                opacity: 0;
-                transform: translateY(30px) scale(0.9) rotateX(10deg);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1) rotateX(0deg);
-            }
-        }
-
-        h2 {
-            color: var(--text-color);
-            text-align: center;
-            margin-bottom: 25px;
-            font-weight: 700;
-            position: relative;
-            padding-bottom: 15px;
-            font-size: 2.2em;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: titleGlow 3s ease-in-out infinite alternate;
-        }
-
-        @keyframes titleGlow {
-            from {
-                filter: drop-shadow(0 0 10px rgba(102, 126, 234, 0.5));
-                transform: scale(1);
-            }
-            to {
-                filter: drop-shadow(0 0 25px rgba(102, 126, 234, 0.9));
-                transform: scale(1.02);
-            }
-        }
-
-        h2::after {
-            content: "";
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 3px;
-            background: var(--primary-color);
-            border-radius: 2px;
-        }
-
-        label {
-            display: block;
-            margin-top: 15px;
-            margin-bottom: 8px;
-            color: var(--secondary-color);
-            font-weight: 600;
-            font-size: 1em;
-        }
-
-        textarea,
-        input[type="text"],
-        input[type="file"],
-        select,
-        button {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid transparent;
-            border-radius: var(--border-radius);
-            box-sizing: border-box;
-            font-size: 16px;
-            margin-top: 5px;
-            margin-bottom: 15px;
-            transition: var(--transition);
-            outline: none;
-            font-family: 'Heebo', 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-            touch-action: manipulation;
-        }
-
-        input[type="text"]:focus,
-        textarea:focus,
-        select:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15), inset 0 2px 4px rgba(0, 0, 0, 0.1);
-            background: rgba(255, 255, 255, 0.25);
-            animation: inputGlow 0.3s ease-out;
-        }
-
-        @keyframes inputGlow {
-            0% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.15); }
-            100% { box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15), inset 0 2px 4px rgba(0, 0, 0, 0.1); }
-        }
-
-        textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-
-        button {
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            margin-top: 20px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-
-        button:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
-        }
-
-        button:active {
-            transform: translateY(-1px);
-        }
-
-        button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-            transition: left 0.7s;
-        }
-
-        button:focus:not(:active)::before {
-            animation: ripple 1s ease-out;
-        }
-
-        @keyframes ripple {
-            0% {
-                transform: scale(0, 0);
-                opacity: 0.5;
-            }
-            100% {
-                transform: scale(100, 100);
-                opacity: 0;
-            }
-        }
-
-        select {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%23667eea%22%20d%3D%22M6%209L1%204h10L6%209z%22/%3E%3C/svg%3E');
-            background-repeat: no-repeat;
-            background-position-x: 15px;
-            background-position-y: center;
-            padding-right: 35px;
-            cursor: pointer;
-        }
-
-        #result-container {
-            transition: var(--transition);
-            margin-top: 15px;
-        }
-
-        #result-text {
-            font-size: 16px;
-            color: var(--text-color);
-            white-space: pre-wrap;
-            padding: 20px;
-            border-radius: var(--border-radius);
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(102, 126, 234, 0.1);
-            transition: var(--transition);
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
-            animation: resultFadeIn 0.8s ease-out;
-            backdrop-filter: blur(10px);
-        }
-
-        @keyframes resultFadeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.9) rotateY(10deg);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1) rotateY(0deg);
-            }
-        }
-
-        .highlight {
-            background: var(--accent-color);
-            color: white;
-            font-weight: bold;
-            padding: 2px 4px;
-            border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            animation: highlightPulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes highlightPulse {
-            0%, 100% {
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-                transform: scale(1);
-            }
-            50% {
-                box-shadow: 0 2px 10px rgba(255, 107, 107, 0.4);
-                transform: scale(1.05);
-            }
-        }
-
-        .option-group {
-            display: none;
-            margin-top: 15px;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: var(--border-radius);
-            animation: slideDown 0.6s ease-out;
-            border: 1px solid var(--glass-border);
-            backdrop-filter: blur(15px);
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-
-        .option-group .input-row {
-            display: flex;
-            flex-direction: column;
-            padding: 8px 10px;
-            border: 1px solid rgba(102, 126, 234, 0.15);
-            border-radius: 14px;
-            margin-bottom: 10px;
-            background: rgba(255, 255, 255, 0.55);
-        }
-
-        [data-theme="dark"] .option-group .input-row {
-            background: rgba(45, 55, 72, 0.5);
-            border-color: rgba(144, 170, 255, 0.3);
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        .option-group label {
-            margin-right: 10px;
-            margin-top: 8px;
-        }
-
-        #qr-code-container {
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            display: none;
-            animation: qrFadeIn 0.8s ease-out;
-        }
-
-        @keyframes qrFadeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.7) rotate(15deg);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1) rotate(0deg);
-            }
-        }
-
-        #qr-code {
-            max-width: 200px;
-            max-height: 200px;
-            padding: 10px;
-            background-color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            border: 2px solid rgba(102, 126, 234, 0.1);
-        }
-
-        .download-buttons {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .download-btn, .scan-btn, .save-pdf-btn, .convert-image-btn, .download-result-btn {
-            padding: 8px 12px;
-            background: var(--accent-color);
-            color: white;
-            border: none;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            transition: var(--transition);
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 14px;
-        }
-
-        .download-btn:hover, .scan-btn:hover, .save-pdf-btn:hover, .convert-image-btn:hover, .download-result-btn:hover {
-            background: #ff5252;
-            transform: translateY(-2px) scale(1.05);
-            box-shadow: 0 4px 15px rgba(255, 82, 82, 0.3);
-        }
-
-        .input-wrapper {
-            position: relative;
-            margin-bottom: 15px;
-        }
-
-        .icon {
-            position: absolute;
-            top: 50%;
-            right: 15px;
-            transform: translateY(-50%);
-            color: #667eea;
-            font-size: 18px;
-        }
-
-        .action-header {
-            text-align: center;
-            font-size: 1.2em;
-            color: var(--text-color);
-            margin-bottom: 12px;
-            font-weight: 600;
-            position: relative;
-        }
-
-        .action-header::after {
-            content: "";
-            position: absolute;
-            bottom: -3px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 40px;
-            height: 2px;
-            background: var(--accent-color);
-            border-radius: 2px;
-        }
-
-        /* מדיה קוורי לתצוגות קטנות */
-        @media (max-width: 768px) {
-            .hamburger-btn {
-                display: block;
-            }
-
-            .sidebar {
-                transform: translateX(100%);
-                width: min(250px, calc(100vw - 24px));
-                max-width: 250px;
-                height: auto;
-                max-height: calc(100vh - 90px);
-                top: 60px;
-                right: 12px;
-                border-radius: 16px;
-                transition: transform 0.3s ease-out;
-                will-change: transform;
-                -webkit-transform: translateX(100%);
-                backface-visibility: hidden;
-                -webkit-backface-visibility: hidden;
-                border: 1px solid var(--glass-border);
-                border-left: 1px solid var(--glass-border);
-            }
-
-            .sidebar.active {
-                transform: translateX(0);
-                -webkit-transform: translateX(0);
-            }
-
-            .sidebar-overlay {
-                display: none;
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.5);
-                z-index: 99;
-                backdrop-filter: blur(3px);
-                transition: opacity 0.3s ease;
-            }
-
-            .sidebar-overlay.active {
-                display: block;
-                animation: fadeIn 0.3s ease;
-            }
-
-            @keyframes fadeIn {
-                from { opacity: 0; }
-                to { opacity: 1; }
-            }
-
-            .main-content {
-                margin-right: 0;
-                padding: calc(80px + env(safe-area-inset-top, 0px)) 15px calc(20px + env(safe-area-inset-bottom, 0px)) 15px;
-            }
-
-            .sidebar-button {
-                padding: 12px 14px;
-                transition: background 0.15s ease, transform 0.15s ease;
-                min-height: 44px;
-            }
-
-            .category-title {
-                font-size: 0.75em;
-            }
-
-            #qr-code {
-                max-width: 150px;
-                max-height: 150px;
-            }
-
-            .download-buttons {
-                flex-direction: column;
-                width: 100%;
-                gap: 10px;
-            }
-
-            .download-btn, .scan-btn, .save-pdf-btn, .convert-image-btn, .download-result-btn {
-                padding: 12px 15px;
-                font-size: 16px;
-                min-height: 44px;
-                width: 100%;
-            }
-
-            h2 {
-                font-size: 1.8em;
-            }
-
-            .container {
-                width: 95%;
-                padding: 25px 20px;
-            }
-
-            #input-options {
-                display: block;
-            }
-
-            .option-group .input-row {
-                padding: 6px 8px;
-                margin-bottom: 8px;
-            }
-
-            /* תיקון בעיות קלט במובייל */
-            textarea,
-            input[type="text"],
-            input[type="file"],
-            select {
-                font-size: 16px; /* מונע זום אוטומטי ב-iOS */
-                -webkit-appearance: none;
-                -moz-appearance: none;
-                appearance: none;
-                min-height: 48px;
-                padding: 14px 16px;
-            }
-
-            button {
-                min-height: 48px;
-                font-size: 16px;
-                padding: 14px 16px;
-            }
-
-            button:active {
-                transform: scale(0.96);
-            }
-
-            /* מניעת ריצוד ואנימציות מיותרות במובייל */
-            .container::after {
-                animation: none;
-            }
-
-            body::before {
-                animation: none;
-                opacity: 0.5;
-            }
-
-            body::after {
-                opacity: 0.45;
-            }
-
-            h2 {
-                animation: none;
-                filter: none;
-            }
-
-            .sidebar {
-                animation: none;
-            }
-
-            .sidebar-button::before {
-                display: none;
-            }
-
-            button::before {
-                display: none;
-            }
-
-            .highlight {
-                animation: none;
-            }
-
-            @keyframes slideDown {
-                from {
-                    opacity: 0;
-                    transform: translateY(-10px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-
-            input[type="text"],
-            textarea,
-            select {
-                background: rgba(255, 255, 255, 0.95);
-                border: 2px solid rgba(102, 126, 234, 0.3);
-                color: var(--text-color);
-            }
-
-            input[type="text"]:focus,
-            textarea:focus,
-            select:focus {
-                background: rgba(255, 255, 255, 1);
-                border-color: #667eea;
-                position: relative;
-                z-index: 10;
-            }
-
-            [data-theme="dark"] input[type="text"],
-            [data-theme="dark"] textarea,
-            [data-theme="dark"] select {
-                background: rgba(45, 55, 72, 0.95);
-                border: 2px solid rgba(102, 126, 234, 0.5);
-                color: var(--text-color);
-            }
-
-            [data-theme="dark"] input[type="text"]:focus,
-            [data-theme="dark"] textarea:focus,
-            [data-theme="dark"] select:focus {
-                background: rgba(45, 55, 72, 1);
-                border-color: #667eea;
-            }
-
-            /* שיפור ביצועים על ידי הפעלת האצה חומרתית */
-            .sidebar,
-            .sidebar-button,
-            .container,
-            button {
-                will-change: transform;
-            }
-
-            /* מניעת בעיות גלילה ופוקוס */
-            body {
-                -webkit-overflow-scrolling: touch;
-                overflow-x: hidden;
-            }
-
-            .main-content {
-                -webkit-overflow-scrolling: touch;
-            }
-        }
-
-        /* טעינת פונטים */
-        @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
-    </style>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>אבהתנא אתרוגים מרוקאים | אתרוגי הדור</title>
+<meta name="description" content="אבהתנא - אתרוגים מרוקאים ותימניים יביע אומר. מסורת של 100 שנה.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;600;700;900&family=Heebo:wght@300;400;500;600;700;800&family=Noto+Serif+Hebrew:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --green-deep:#12331f;
+    --green:#1e4d2f;
+    --green-light:#356b45;
+    --gold:#c9a24b;
+    --gold-light:#e8cf8a;
+    --cream:#f6efdd;
+    --paper:#fbf7ec;
+    --ink:#1b2a1f;
+    --ink-soft:#4a5a4c;
+    --red:#c22626;
+    --shadow:0 20px 50px -20px rgba(18,51,31,.45);
+    --radius:18px;
+    --serif:'Frank Ruhl Libre','Noto Serif Hebrew',serif;
+    --sans:'Heebo',sans-serif;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:var(--sans);
+    color:var(--ink);
+    background:var(--paper);
+    overflow-x:hidden;
+    line-height:1.6;
+  }
+  img{max-width:100%;display:block;}
+  a{color:inherit;text-decoration:none;}
+  ul{list-style:none;}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;}
+  ::selection{background:var(--gold);color:var(--green-deep);}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;}
+  }
+
+  .container{max-width:1180px;margin:0 auto;padding:0 24px;}
+
+  /* ===== Ornamental divider ===== */
+  .ornament{display:flex;align-items:center;justify-content:center;gap:14px;margin:0 0 18px;}
+  .ornament::before,.ornament::after{content:"";width:46px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),var(--gold));}
+  .ornament::after{background:linear-gradient(90deg,var(--gold),var(--gold),transparent);}
+  .ornament span{width:8px;height:8px;border:1px solid var(--gold);transform:rotate(45deg);}
+
+  .eyebrow{
+    font-family:var(--sans);
+    letter-spacing:.28em;
+    font-size:.72rem;
+    font-weight:600;
+    color:var(--gold);
+    text-align:center;
+    text-transform:uppercase;
+    margin-bottom:8px;
+  }
+
+  /* ===== Header ===== */
+  header{
+    position:fixed;top:0;right:0;left:0;z-index:500;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 32px;
+    background:rgba(18,51,31,.0);
+    transition:background .4s ease, box-shadow .4s ease, padding .4s ease;
+  }
+  header.scrolled{
+    background:rgba(18,51,31,.92);
+    backdrop-filter:blur(10px);
+    box-shadow:0 8px 30px rgba(0,0,0,.25);
+    padding:10px 32px;
+  }
+  .brand{display:flex;align-items:center;gap:10px;color:var(--gold-light);}
+  .brand .brand-mark{
+    width:38px;height:38px;border-radius:50%;
+    border:1.5px solid var(--gold);
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--serif);font-weight:700;color:var(--gold);
+  }
+  .brand-text{display:flex;flex-direction:column;line-height:1.15;}
+  .brand-text b{font-family:var(--serif);font-size:1.15rem;color:#fff;font-weight:700;}
+  .brand-text small{font-size:.66rem;letter-spacing:.14em;color:var(--gold-light);}
+
+  nav ul{display:flex;gap:30px;}
+  nav a{
+    color:#f2ecd8;font-size:.92rem;font-weight:500;position:relative;padding:4px 0;
+  }
+  nav a::after{
+    content:"";position:absolute;bottom:-2px;right:0;width:0;height:1px;background:var(--gold);
+    transition:width .3s ease;
+  }
+  nav a:hover::after{width:100%;}
+
+  .header-actions{display:flex;align-items:center;gap:16px;}
+  .icon-btn{
+    position:relative;width:42px;height:42px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(255,255,255,.08);color:#f2ecd8;border:1px solid rgba(255,255,255,.18);
+    transition:background .25s;
+  }
+  .icon-btn:hover{background:rgba(255,255,255,.18);}
+  .cart-count{
+    position:absolute;top:-6px;left:-6px;background:var(--red);color:#fff;
+    font-size:.66rem;font-weight:700;min-width:19px;height:19px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;border:2px solid var(--green-deep);
+  }
+  .burger{display:none;color:#fff;font-size:1.5rem;}
+
+  /* ===== Hero ===== */
+  .hero{
+    position:relative;
+    min-height:100vh;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;overflow:hidden;
+    color:#fff;
+    isolation:isolate;
+  }
+  .hero-bg-layer{
+    position:absolute;inset:0;z-index:-2;
+  }
+  .hero-bg-slide{
+    position:absolute;inset:0;
+    background-size:cover;background-position:center;
+    opacity:0;transition:opacity 2.2s ease-in-out;
+    filter:saturate(1.05) brightness(.72);
+  }
+  .hero-bg-slide.active{opacity:1;}
+  .hero::after{
+    content:"";position:absolute;inset:0;z-index:-1;
+    background:
+      radial-gradient(ellipse at 50% 20%, rgba(18,51,31,.15), rgba(12,30,18,.55) 55%, rgba(10,22,14,.88) 100%),
+      linear-gradient(180deg, rgba(10,22,14,.35) 0%, rgba(10,22,14,.15) 40%, rgba(10,22,14,.85) 100%);
+  }
+  .hero-eyebrow{
+    font-size:.78rem;letter-spacing:.35em;text-transform:uppercase;
+    color:var(--gold-light);margin-bottom:22px;
+    opacity:0;animation:fadeUp 1s ease .3s forwards;
+  }
+  .hero h1{
+    font-family:var(--serif);
+    font-weight:900;
+    font-size:clamp(2.6rem,7vw,5.4rem);
+    line-height:1.05;
+    text-shadow:0 10px 40px rgba(0,0,0,.5);
+    background:linear-gradient(180deg,#fff 10%,var(--gold-light) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    opacity:0;animation:fadeUp 1s ease .5s forwards;
+  }
+  .hero h2{
+    font-family:var(--serif);
+    font-weight:400;font-style:italic;
+    font-size:clamp(1.05rem,2.4vw,1.5rem);
+    color:#efe6c8;margin-top:18px;max-width:640px;
+    opacity:0;animation:fadeUp 1s ease .75s forwards;
+  }
+  .hero-cta-row{
+    display:flex;gap:18px;margin-top:44px;flex-wrap:wrap;justify-content:center;
+    opacity:0;animation:fadeUp 1s ease 1s forwards;
+  }
+  @keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+
+  .btn{
+    display:inline-flex;align-items:center;gap:10px;
+    padding:15px 34px;border-radius:999px;
+    font-weight:700;font-size:.98rem;letter-spacing:.02em;
+    transition:transform .25s ease, box-shadow .25s ease;
+  }
+  .btn-gold{
+    background:linear-gradient(135deg,var(--gold-light),var(--gold));
+    color:var(--green-deep);box-shadow:0 12px 30px -8px rgba(201,162,75,.6);
+  }
+  .btn-gold:hover{transform:translateY(-3px);box-shadow:0 18px 36px -8px rgba(201,162,75,.75);}
+  .btn-outline{
+    border:1.5px solid rgba(255,255,255,.55);color:#fff;
+  }
+  .btn-outline:hover{background:rgba(255,255,255,.12);transform:translateY(-3px);}
+
+  .btn-order-now{
+    background:var(--red);color:#fff;
+    box-shadow:0 0 0 0 rgba(194,38,38,.7);
+    animation:pulseRed 1.7s infinite;
+    border:1.5px solid #ff8c8c;
+  }
+  @keyframes pulseRed{
+    0%{box-shadow:0 0 0 0 rgba(194,38,38,.65);}
+    70%{box-shadow:0 0 0 16px rgba(194,38,38,0);}
+    100%{box-shadow:0 0 0 0 rgba(194,38,38,0);}
+  }
+
+  .scroll-cue{
+    position:absolute;bottom:30px;left:50%;transform:translateX(-50%);
+    color:var(--gold-light);font-size:1.6rem;
+    animation:bounce 2s infinite;
+  }
+  @keyframes bounce{0%,100%{transform:translate(-50%,0);}50%{transform:translate(-50%,10px);}}
+
+  /* ===== General section styles ===== */
+  section{padding:110px 0;position:relative;}
+  .section-title{
+    font-family:var(--serif);font-weight:700;
+    font-size:clamp(2rem,4vw,2.9rem);
+    text-align:center;color:var(--green-deep);margin-bottom:6px;
+  }
+  .section-sub{
+    text-align:center;color:var(--ink-soft);max-width:620px;margin:0 auto 60px;font-size:1.02rem;
+  }
+
+  /* ===== About ===== */
+  .about{background:var(--green-deep);color:#efe6c8;position:relative;overflow:hidden;}
+  .about::before{
+    content:"";position:absolute;inset:0;
+    background:radial-gradient(circle at 15% 20%, rgba(201,162,75,.12), transparent 45%),
+               radial-gradient(circle at 85% 80%, rgba(201,162,75,.1), transparent 45%);
+  }
+  .about-grid{
+    display:grid;grid-template-columns:1fr 1.1fr;gap:70px;align-items:center;position:relative;z-index:1;
+  }
+  .about-media{
+    position:relative;border-radius:var(--radius);overflow:hidden;
+    aspect-ratio:4/5;box-shadow:var(--shadow);border:1px solid rgba(201,162,75,.35);
+    background:linear-gradient(160deg,rgba(201,162,75,.18),rgba(255,255,255,.03));
+  }
+  .about-media img{width:100%;height:100%;object-fit:cover;}
+  .about-media .frame-tag{
+    position:absolute;bottom:16px;right:16px;left:16px;
+    background:rgba(18,51,31,.75);backdrop-filter:blur(6px);
+    border:1px solid rgba(201,162,75,.4);
+    padding:14px 18px;border-radius:12px;font-family:var(--serif);font-style:italic;
+    font-size:.92rem;color:var(--gold-light);
+  }
+  .about h2{
+    font-family:var(--serif);font-size:clamp(1.9rem,3.4vw,2.6rem);margin-bottom:22px;color:#fff;
+  }
+  .about p{color:#d8ceac;margin-bottom:18px;font-size:1.02rem;}
+  .about-stats{display:flex;gap:30px;margin-top:36px;flex-wrap:wrap;}
+  .about-stats div{text-align:center;}
+  .about-stats b{
+    display:block;font-family:var(--serif);font-size:2.1rem;color:var(--gold);
+  }
+  .about-stats span{font-size:.8rem;color:#bfb28d;letter-spacing:.05em;}
+
+  /* ===== Products ===== */
+  .products{background:var(--paper);}
+  .filter-row{
+    display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:46px;
+  }
+  .filter-btn{
+    padding:9px 22px;border-radius:999px;border:1px solid var(--green);
+    color:var(--green);font-size:.86rem;font-weight:600;transition:all .25s;
+  }
+  .filter-btn.active,.filter-btn:hover{background:var(--green);color:#fff;}
+
+  .products-grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:28px;
+  }
+  .product-card{
+    background:var(--paper);border:1px solid rgba(30,77,47,.12);
+    border-radius:var(--radius);overflow:hidden;
+    box-shadow:0 10px 30px -18px rgba(18,51,31,.35);
+    transition:transform .35s ease, box-shadow .35s ease;
+    display:flex;flex-direction:column;
+  }
+  .product-card:hover{transform:translateY(-8px);box-shadow:0 22px 40px -18px rgba(18,51,31,.45);}
+  .product-media{
+    position:relative;aspect-ratio:1/1;overflow:hidden;
+    background:linear-gradient(150deg,#e7ddc0,#f6efdd);
+  }
+  .product-media img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease;}
+  .product-card:hover .product-media img{transform:scale(1.08);}
+  .product-badge{
+    position:absolute;top:12px;right:12px;background:var(--gold);color:var(--green-deep);
+    font-size:.68rem;font-weight:700;padding:5px 11px;border-radius:999px;letter-spacing:.03em;
+  }
+  .product-body{padding:18px 18px 20px;display:flex;flex-direction:column;flex:1;}
+  .product-cat{font-size:.7rem;letter-spacing:.12em;color:var(--gold);text-transform:uppercase;font-weight:700;margin-bottom:6px;}
+  .product-title{font-family:var(--serif);font-weight:700;font-size:1.12rem;color:var(--ink);margin-bottom:4px;}
+  .product-sub{font-size:.84rem;color:var(--ink-soft);margin-bottom:14px;flex:1;}
+  .product-footer{display:flex;align-items:center;justify-content:space-between;margin-top:auto;}
+  .product-price{font-family:var(--serif);font-weight:700;font-size:1.28rem;color:var(--green-deep);}
+  .product-price span{font-size:.72rem;color:var(--ink-soft);font-weight:400;margin-right:3px;}
+  .add-btn{
+    display:flex;align-items:center;gap:6px;background:var(--green);color:#fff;
+    padding:9px 16px;border-radius:999px;font-size:.84rem;font-weight:600;
+    transition:background .25s, transform .25s;
+  }
+  .add-btn:hover{background:var(--green-light);transform:scale(1.04);}
+  .add-btn.added{background:var(--gold);color:var(--green-deep);}
+
+  /* ===== Gallery ===== */
+  .gallery{background:var(--cream);}
+  .gallery-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    grid-auto-rows:150px;
+    gap:14px;
+  }
+  .gallery-item{
+    border-radius:14px;overflow:hidden;position:relative;
+    background:linear-gradient(150deg,#e7ddc0,#d8c99b);
+    box-shadow:0 10px 24px -14px rgba(18,51,31,.4);
+  }
+  .gallery-item img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease;}
+  .gallery-item:hover img{transform:scale(1.12);}
+  .gallery-item::after{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(0deg,rgba(18,51,31,.55),transparent 55%);
+    opacity:0;transition:opacity .3s;
+  }
+  .gallery-item:hover::after{opacity:1;}
+  .gallery-item span{
+    position:absolute;bottom:10px;right:14px;color:#fff;font-size:.8rem;font-weight:600;
+    opacity:0;transition:opacity .3s;
+  }
+  .gallery-item:hover span{opacity:1;}
+  .g-tall{grid-row:span 2;}
+  .g-wide{grid-column:span 2;}
+
+  /* ===== Q&A ===== */
+  .faq{background:var(--paper);}
+  .faq-list{max-width:780px;margin:0 auto;}
+  .faq-item{
+    border-bottom:1px solid rgba(30,77,47,.15);
+  }
+  .faq-q{
+    width:100%;display:flex;justify-content:space-between;align-items:center;
+    padding:22px 4px;font-family:var(--serif);font-size:1.08rem;font-weight:600;color:var(--green-deep);
+    text-align:right;
+  }
+  .faq-q .plus{color:var(--gold);font-size:1.4rem;transition:transform .3s;}
+  .faq-item.open .plus{transform:rotate(45deg);}
+  .faq-a{max-height:0;overflow:hidden;transition:max-height .4s ease;}
+  .faq-a p{padding:0 4px 22px;color:var(--ink-soft);font-size:.96rem;max-width:680px;}
+
+  /* ===== Contact / Footer ===== */
+  footer{background:var(--green-deep);color:#d8ceac;padding-top:90px;position:relative;overflow:hidden;}
+  footer::before{
+    content:"";position:absolute;inset:0;
+    background:radial-gradient(circle at 80% 0%, rgba(201,162,75,.12), transparent 50%);
+  }
+  .footer-grid{
+    display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:60px;position:relative;z-index:1;padding-bottom:50px;
+    border-bottom:1px solid rgba(201,162,75,.2);
+  }
+  .footer-brand b{font-family:var(--serif);font-size:1.5rem;color:#fff;}
+  .footer-brand p{margin-top:14px;font-size:.92rem;line-height:1.8;max-width:340px;}
+  .footer-col h4{color:var(--gold-light);font-family:var(--serif);font-size:1.05rem;margin-bottom:18px;}
+  .footer-col li{margin-bottom:11px;font-size:.92rem;}
+  .footer-col a:hover{color:var(--gold);}
+  .footer-contact-item{display:flex;align-items:center;gap:10px;}
+  .bottom-bar{
+    display:flex;justify-content:space-between;align-items:center;padding:26px 0;
+    font-size:.8rem;color:#a79c78;flex-wrap:wrap;gap:10px;position:relative;z-index:1;
+  }
+
+  /* ===== Floating WhatsApp ===== */
+  .whatsapp-float{
+    position:fixed;bottom:26px;left:26px;z-index:600;
+    width:62px;height:62px;border-radius:50%;
+    background:#25D366;color:#fff;display:flex;align-items:center;justify-content:center;
+    box-shadow:0 10px 30px -6px rgba(0,0,0,.5);
+    animation:floatBob 3s ease-in-out infinite;
+  }
+  .whatsapp-float:hover{transform:scale(1.08);}
+  @keyframes floatBob{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+  .whatsapp-float svg{width:32px;height:32px;}
+  .wa-ping{
+    position:absolute;inset:0;border-radius:50%;border:2px solid #25D366;
+    animation:ping 1.8s cubic-bezier(0,0,.2,1) infinite;
+  }
+  @keyframes ping{0%{transform:scale(1);opacity:.7;}100%{transform:scale(1.6);opacity:0;}}
+
+  /* ===== Cart Drawer ===== */
+  .overlay{
+    position:fixed;inset:0;background:rgba(10,22,14,.55);backdrop-filter:blur(2px);
+    z-index:800;opacity:0;pointer-events:none;transition:opacity .35s ease;
+  }
+  .overlay.show{opacity:1;pointer-events:auto;}
+
+  .cart-drawer{
+    position:fixed;top:0;left:0;height:100%;width:min(420px,92vw);
+    background:var(--paper);z-index:900;
+    transform:translateX(-105%);transition:transform .45s cubic-bezier(.2,.9,.2,1);
+    display:flex;flex-direction:column;box-shadow:20px 0 50px rgba(0,0,0,.3);
+  }
+  .cart-drawer.open{transform:translateX(0);}
+  .cart-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:24px;background:var(--green-deep);color:#fff;
+  }
+  .cart-header h3{font-family:var(--serif);font-size:1.3rem;}
+  .cart-close{font-size:1.5rem;color:var(--gold-light);}
+  .cart-items{flex:1;overflow-y:auto;padding:18px 20px;}
+  .cart-item{
+    display:flex;gap:14px;padding:14px 0;border-bottom:1px solid rgba(30,77,47,.12);align-items:center;
+  }
+  .cart-item-img{
+    width:64px;height:64px;border-radius:10px;overflow:hidden;flex-shrink:0;
+    background:linear-gradient(150deg,#e7ddc0,#f6efdd);
+  }
+  .cart-item-img img{width:100%;height:100%;object-fit:cover;}
+  .cart-item-info{flex:1;}
+  .cart-item-info b{font-family:var(--serif);font-size:.98rem;color:var(--ink);}
+  .cart-item-price{color:var(--ink-soft);font-size:.84rem;margin-top:2px;}
+  .qty-row{display:flex;align-items:center;gap:10px;margin-top:8px;}
+  .qty-btn{
+    width:24px;height:24px;border-radius:50%;border:1px solid var(--green);color:var(--green);
+    display:flex;align-items:center;justify-content:center;font-size:.9rem;
+  }
+  .qty-btn:hover{background:var(--green);color:#fff;}
+  .cart-remove{color:var(--red);font-size:.78rem;margin-right:auto;}
+  .cart-empty{text-align:center;padding:60px 20px;color:var(--ink-soft);}
+  .cart-empty svg{width:60px;height:60px;color:var(--gold);margin:0 auto 16px;opacity:.6;}
+  .cart-footer{padding:22px 24px 26px;border-top:1px solid rgba(30,77,47,.15);background:var(--paper);}
+  .cart-total-row{display:flex;justify-content:space-between;font-family:var(--serif);font-size:1.2rem;margin-bottom:16px;color:var(--green-deep);font-weight:700;}
+  .checkout-btn{
+    width:100%;padding:15px;border-radius:999px;background:var(--green-deep);color:#fff;font-weight:700;font-size:1rem;
+    transition:background .25s;
+  }
+  .checkout-btn:hover{background:var(--green);}
+  .checkout-btn:disabled{opacity:.5;cursor:not-allowed;}
+
+  /* ===== Modal (checkout) ===== */
+  .modal{
+    position:fixed;inset:0;z-index:950;display:flex;align-items:center;justify-content:center;
+    padding:20px;opacity:0;pointer-events:none;transition:opacity .35s ease;
+  }
+  .modal.show{opacity:1;pointer-events:auto;}
+  .modal-card{
+    background:var(--paper);border-radius:22px;max-width:560px;width:100%;
+    max-height:88vh;overflow-y:auto;box-shadow:0 40px 90px -20px rgba(0,0,0,.5);
+    transform:translateY(30px) scale(.97);transition:transform .4s cubic-bezier(.2,.9,.2,1);
+    border:1px solid var(--gold-light);
+  }
+  .modal.show .modal-card{transform:translateY(0) scale(1);}
+  .modal-head{
+    padding:26px 28px 18px;display:flex;justify-content:space-between;align-items:center;
+    background:linear-gradient(135deg,var(--green-deep),var(--green));color:#fff;
+    border-radius:22px 22px 0 0;
+  }
+  .modal-head h3{font-family:var(--serif);font-size:1.35rem;}
+  .modal-close{font-size:1.5rem;color:var(--gold-light);}
+  .modal-body{padding:26px 28px 30px;}
+
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:.86rem;font-weight:600;margin-bottom:6px;color:var(--green-deep);}
+  .field input,.field textarea{
+    width:100%;padding:12px 14px;border-radius:11px;border:1.5px solid rgba(30,77,47,.25);
+    font-family:var(--sans);font-size:.94rem;background:#fff;transition:border-color .2s;
+  }
+  .field input:focus,.field textarea:focus{outline:none;border-color:var(--gold);}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+  .method-toggle{display:flex;gap:12px;margin-bottom:20px;}
+  .method-btn{
+    flex:1;padding:14px;border-radius:12px;border:1.5px solid rgba(30,77,47,.25);
+    text-align:center;font-weight:600;color:var(--ink-soft);transition:all .25s;display:flex;flex-direction:column;align-items:center;gap:6px;
+  }
+  .method-btn.active{border-color:var(--green);background:rgba(30,77,47,.08);color:var(--green-deep);}
+  .method-btn svg{width:22px;height:22px;}
+
+  .address-fields{max-height:0;overflow:hidden;transition:max-height .4s ease;}
+  .address-fields.show{max-height:400px;}
+
+  .order-summary{
+    background:var(--cream);border-radius:14px;padding:16px 18px;margin-bottom:20px;font-size:.9rem;
+  }
+  .order-summary .sum-row{display:flex;justify-content:space-between;padding:5px 0;color:var(--ink-soft);}
+  .order-summary .sum-total{font-weight:700;color:var(--green-deep);font-family:var(--serif);font-size:1.1rem;border-top:1px dashed rgba(30,77,47,.3);margin-top:8px;padding-top:10px;}
+
+  .submit-order{
+    width:100%;padding:15px;border-radius:999px;background:var(--red);color:#fff;font-weight:700;font-size:1rem;
+    transition:transform .2s, background .2s;
+  }
+  .submit-order:hover{transform:translateY(-2px);background:#a91f1f;}
+
+  /* success modal */
+  .success-icon{
+    width:74px;height:74px;border-radius:50%;background:var(--green);color:#fff;
+    display:flex;align-items:center;justify-content:center;margin:0 auto 18px;
+    animation:pop .5s cubic-bezier(.2,.9,.3,1.4);
+  }
+  @keyframes pop{from{transform:scale(0);}to{transform:scale(1);}}
+  .success-icon svg{width:36px;height:36px;}
+
+  /* ===== Toast ===== */
+  .toast{
+    position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--green-deep);color:#fff;padding:14px 26px;border-radius:999px;
+    font-size:.92rem;box-shadow:0 14px 30px rgba(0,0,0,.35);z-index:1000;
+    opacity:0;pointer-events:none;transition:all .35s ease;display:flex;align-items:center;gap:10px;
+    border:1px solid var(--gold);
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto;}
+
+  /* ===== Scroll reveal ===== */
+  .reveal{opacity:0;transform:translateY(30px);transition:opacity .8s ease, transform .8s ease;}
+  .reveal.visible{opacity:1;transform:translateY(0);}
+
+  /* ===== Responsive ===== */
+  @media (max-width:900px){
+    .about-grid{grid-template-columns:1fr;}
+    .footer-grid{grid-template-columns:1fr;gap:36px;}
+    .gallery-grid{grid-template-columns:repeat(2,1fr);}
+    nav,.header-actions .icon-btn:nth-child(3){display:none;}
+    .burger{display:block;}
+  }
+  @media (max-width:560px){
+    section{padding:70px 0;}
+    .field-row{grid-template-columns:1fr;}
+  }
+</style>
 </head>
+<body>
 
-<body data-lang="he" dir="rtl">
-    <button class="hamburger-btn" id="hamburger-btn">
-        <i class="fas fa-bars"></i>
+<!-- ============ HEADER ============ -->
+<header id="siteHeader">
+  <div class="brand">
+    <div class="brand-mark">א</div>
+    <div class="brand-text">
+      <b>אבהתנא</b>
+      <small>אתרוגים מרוקאים</small>
+    </div>
+  </div>
+  <nav>
+    <ul>
+      <li><a href="#home">בית</a></li>
+      <li><a href="#about">עלינו</a></li>
+      <li><a href="#products">מוצרים</a></li>
+      <li><a href="#gallery">גלריה</a></li>
+      <li><a href="#faq">שאלות ותשובות</a></li>
+      <li><a href="#contact">יצירת קשר</a></li>
+    </ul>
+  </nav>
+  <div class="header-actions">
+    <button class="icon-btn" onclick="openCart()" aria-label="סל קניות">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      <span class="cart-count" id="cartCount">0</span>
     </button>
+    <a href="#products" class="btn btn-gold" style="padding:10px 22px;font-size:.85rem;">לחנות</a>
+    <button class="burger" onclick="toggleMobileNav()">☰</button>
+  </div>
+</header>
 
-    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+<!-- mobile nav -->
+<div id="mobileNav" style="display:none;position:fixed;inset:0;z-index:490;background:var(--green-deep);flex-direction:column;align-items:center;justify-content:center;gap:26px;">
+  <a href="#home" onclick="toggleMobileNav()" style="color:#fff;font-family:var(--serif);font-size:1.4rem;">בית</a>
+  <a href="#about" onclick="toggleMobileNav()" style="color:#fff;font-family:var(--serif);font-size:1.4rem;">עלינו</a>
+  <a href="#products" onclick="toggleMobileNav()" style="color:#fff;font-family:var(--serif);font-size:1.4rem;">מוצרים</a>
+  <a href="#gallery" onclick="toggleMobileNav()" style="color:#fff;font-family:var(--serif);font-size:1.4rem;">גלריה</a>
+  <a href="#faq" onclick="toggleMobileNav()" style="color:#fff;font-family:var(--serif);font-size:1.4rem;">שאלות ותשובות</a>
+  <a href="#contact" onclick="toggleMobileNav()" style="color:#fff;font-family:var(--serif);font-size:1.4rem;">יצירת קשר</a>
+  <button onclick="toggleMobileNav()" style="color:var(--gold);font-size:2rem;position:absolute;top:26px;left:26px;">✕</button>
+</div>
 
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <h3>כלים</h3>
-        </div>
+<!-- ============ HERO ============ -->
+<section class="hero" id="home">
+  <div class="hero-bg-layer" id="heroBgLayer"></div>
+  <div class="hero-eyebrow">מסורת יהודית · 100 שנה · טוהר והידור</div>
+  <h1>אבהתנא<br>אתרוגים מרוקאים</h1>
+  <h2>אתרוגי אבהתנא — אתרוגים מרוקאים ואתרוגים תימניים "יביע אומר"</h2>
+  <div class="hero-cta-row">
+    <a href="#products" class="btn btn-order-now">✦ הזמנה עכשיו</a>
+    <a href="#about" class="btn btn-outline">קראו את הסיפור שלנו</a>
+  </div>
+  <div class="scroll-cue">⌄</div>
+</section>
 
-        <div id="language-select-container">
-            <label for="language-select">שפה:</label>
-            <select id="language-select">
-                <option value="he">עברית</option>
-                <option value="en">English</option>
-            </select>
-        </div>
+<!-- ============ ABOUT ============ -->
+<section class="about" id="about">
+  <div class="container about-grid">
+    <div class="about-media reveal">
+      <img src="about.png" alt="אתרוגי אבהתנא" onerror="this.style.display='none'">
+      <div class="frame-tag">"כל אתרוג נבחר ונבדק ביד, כפי שנהגו אבותינו במרוקו"</div>
+    </div>
+    <div class="reveal">
+      <div class="eyebrow" style="text-align:right;">הסיפור שלנו</div>
+      <h2>כבר 100 שנה, אתרוגים שהם באמת יפים</h2>
+      <p>משפחתנו מגדלת ובוררת אתרוגים מזן מרוקאי מובהק כבר מאה שנה, מסורת שעברה מסבא לאבא ומאב לבן. כל אתרוג עובר בדיקה קפדנית של הידור, ניקיון וצורה — לפני שהוא מגיע אליכם.</p>
+      <p>לצד האתרוגים המרוקאים המסורתיים, אנו מציעים גם אתרוגים תימניים בהידור "יביע אומר", עבור מי שמחפש מהדרין מן המהדרין. כל מוצר נבחר בקפידה, נארז בעדינות, ומגיע ישירות אליכם עם תעודת הכשר.</p>
+      <div class="about-stats">
+        <div><b>100+</b><span>שנות מסורת</span></div>
+        <div><b>15,000</b><span>לקוחות מרוצים</span></div>
+        <div><b>100%</b><span>מהודר בלבד</span></div>
+      </div>
+    </div>
+  </div>
+</section>
 
-        <!-- קטגוריה: חישובים -->
-        <div class="category-group">
-            <div class="category-title" data-i18n="categoryCalculations">חישובים</div>
-            <button class="sidebar-button" data-action="calculate" data-i18n="actionCalculate">
-                <i class="fas fa-calculator"></i> חשבון
-            </button>
-            <button class="sidebar-button" data-action="financialCalculator" data-i18n="actionFinancialCalculator">
-                <i class="fas fa-dollar-sign"></i> מחשבון פיננסי
-            </button>
-            <button class="sidebar-button" data-action="bmi" data-i18n="actionBMI">
-                <i class="fas fa-weight"></i> חישוב BMI
-            </button>
-            <button class="sidebar-button" data-action="gematria" data-i18n="actionGematria">
-                <i class="fas fa-star-of-david"></i> גימטריה
-            </button>
-        </div>
+<!-- ============ PRODUCTS ============ -->
+<section class="products" id="products">
+  <div class="container">
+    <div class="eyebrow">אתרוגי הדור</div>
+    <h2 class="section-title reveal">המוצרים שלנו</h2>
+    <p class="section-sub reveal">מבחר אתרוגים, ארבעת המינים ואביזרי הידור — נבחרים ביד, ארוזים באהבה</p>
 
-        <!-- קטגוריה: כלי טקסט -->
-        <div class="category-group">
-            <div class="category-title" data-i18n="categoryText">כלי טקסט</div>
-            <button class="sidebar-button" data-action="find" data-i18n="actionFind">
-                <i class="fas fa-search"></i> חפש מילה
-            </button>
-            <button class="sidebar-button" data-action="reverse" data-i18n="actionReverse">
-                <i class="fas fa-undo"></i> הפוך סדר טקסט
-            </button>
-            <button class="sidebar-button" data-action="atbash_letters" data-i18n="actionAtbash">
-                <i class="fas fa-exchange-alt"></i> א"ת ב"ש
-            </button>
-            <button class="sidebar-button" data-action="wordCount" data-i18n="actionWordCount">
-                <i class="fas fa-list-ol"></i> ספירת מילים ואותיות
-            </button>
-        </div>
-
-        <!-- קטגוריה: ממירים -->
-        <div class="category-group">
-            <div class="category-title" data-i18n="categoryConverters">ממירים</div>
-            <button class="sidebar-button" data-action="lengthConvert" data-i18n="actionLengthConvert">
-                <i class="fas fa-ruler"></i> המרת אורך
-            </button>
-            <button class="sidebar-button" data-action="temperatureConvert" data-i18n="actionTemperatureConvert">
-                <i class="fas fa-thermometer-half"></i> המרת טמפרטורה
-            </button>
-            <button class="sidebar-button" data-action="imageConverter" data-i18n="actionImageConverter">
-                <i class="fas fa-images"></i> ממיר תמונות
-            </button>
-        </div>
-
-        <!-- קטגוריה: מדיה וכלים -->
-        <div class="category-group">
-            <div class="category-title" data-i18n="categoryMedia">מדיה וכלים</div>
-            <button class="sidebar-button" data-action="qrCode" data-i18n="actionQrCode">
-                <i class="fas fa-qrcode"></i> יצירת קוד QR
-            </button>
-        </div>
-
-        <button class="theme-toggle" id="theme-toggle">
-            <i class="fas fa-moon"></i> מצב כהה
-        </button>
+    <div class="filter-row reveal">
+      <button class="filter-btn active" data-filter="all">הכל</button>
+      <button class="filter-btn" data-filter="מרוקאי">אתרוגים מרוקאים</button>
+      <button class="filter-btn" data-filter="תימני">אתרוגים תימניים</button>
+      <button class="filter-btn" data-filter="ארבעת המינים">ארבעת המינים</button>
+      <button class="filter-btn" data-filter="אביזרים">אביזרים והידור</button>
     </div>
 
-    <div class="main-content">
-        <div class="container">
-            <h2 data-i18n="title">כלי רב-תכליתי</h2>
+    <div class="products-grid" id="productsGrid"></div>
+  </div>
+</section>
 
-            <div id="input-options" class="option-group">
-                <label for="mainInput" data-i18n="inputLabel">הכנס טקסט או ערך:</label>
-                <input type="text" id="mainInput" data-i18n-placeholder="inputPlaceholder"
-                    placeholder="הזן טקסט או מספר לפעולה הרצויה">
-            </div>
+<!-- ============ GALLERY ============ -->
+<section class="gallery" id="gallery">
+  <div class="container">
+    <div class="eyebrow">רגעים מהבוסתן</div>
+    <h2 class="section-title reveal">גלריית תמונות</h2>
+    <p class="section-sub reveal">מהבוסתן המרוקאי אל שולחן החג שלכם</p>
+    <div class="gallery-grid reveal" id="galleryGrid"></div>
+  </div>
+</section>
 
-            <div id="find-options" class="option-group">
-                <div class="action-header" data-i18n="actionFind">חפש מילה</div>
-                <label for="mainInputFind" data-i18n="inputLabel">הכנס טקסט לחיפוש בו:</label>
-                <textarea id="mainInputFind" data-i18n-placeholder="findTextPlaceholder"
-                    placeholder="הזן את הטקסט שבו תרצה לחפש"></textarea>
-                <label for="wordToSearch" data-i18n="findWordLabel">מילה לחיפוש:</label>
-                <input type="text" id="wordToSearch" data-i18n-placeholder="findWordPlaceholder"
-                    placeholder="הכנס מילה לחיפוש">
-            </div>
+<!-- ============ FAQ ============ -->
+<section class="faq" id="faq">
+  <div class="container">
+    <div class="eyebrow">שאלות נפוצות</div>
+    <h2 class="section-title reveal">שאלות ותשובות</h2>
+    <p class="section-sub reveal">כל מה שרציתם לדעת לפני ההזמנה</p>
+    <div class="faq-list" id="faqList"></div>
+  </div>
+</section>
 
-            <div id="calculate-options" class="option-group">
-                <div class="action-header" data-i18n="actionCalculate">חשבון</div>
-                <label for="mainInputCalc" data-i18n="calcLabel">הכנס תרגיל חשבוני:</label>
-                <input type="text" id="mainInputCalc" data-i18n-placeholder="calcPlaceholder"
-                    placeholder="לדוגמה: 5 + 3 * 2">
-            </div>
-
-            <div id="reverse-options" class="option-group">
-                <div class="action-header" data-i18n="actionReverse">הפוך סדר טקסט</div>
-                <label for="mainInputReverse" data-i18n="reverseLabel">הכנס טקסט להיפוך:</label>
-                <textarea id="mainInputReverse" data-i18n-placeholder="reversePlaceholder"
-                    placeholder="הכנס טקסט שברצונך להפוך את סדרו"></textarea>
-            </div>
-
-            <div id="gematria-options" class="option-group">
-                <div class="action-header" data-i18n="actionGematria">גימטריה</div>
-                <label for="mainInputGematria" data-i18n="gematriaLabel">הכנס טקסט בעברית לחישוב גימטריה:</label>
-                <input type="text" id="mainInputGematria" data-i18n-placeholder="gematriaPlaceholder"
-                    placeholder="הכנס טקסט בעברית">
-            </div>
-
-            <div id="atbash_letters-options" class="option-group">
-                <div class="action-header" data-i18n="actionAtbash">א"ת ב"ש</div>
-                <label for="mainInputAtbash" data-i18n="atbashLabel">הכנס טקסט בעברית להמרה לא"ת ב"ש:</label>
-                <textarea id="mainInputAtbash" data-i18n-placeholder="atbashPlaceholder"
-                    placeholder="הכנס טקסט בעברית להמרה"></textarea>
-            </div>
-
-            <div id="lengthConvert-options" class="option-group">
-                <div class="action-header" data-i18n="actionLengthConvert">המרת אורך</div>
-                <div class="input-row">
-                    <label for="mainInputLength" data-i18n="lengthValueLabel">הכנס ערך להמרה:</label>
-                    <input type="text" id="mainInputLength" data-i18n-placeholder="lengthValuePlaceholder"
-                        placeholder="הכנס מספר">
-                </div>
-                <div class="input-row">
-                    <label for="length_from" data-i18n="lengthFromLabel">מ:</label>
-                    <select id="length_from">
-                    <option value="cm" data-i18n="unitCentimeters">סנטימטרים</option>
-                    <option value="m" data-i18n="unitMeters">מטרים</option>
-                    <option value="km" data-i18n="unitKilometers">קילומטרים</option>
-                    <option value="inch" data-i18n="unitInches">אינצ'ים</option>
-                    <option value="foot" data-i18n="unitFeet">פיט</option>
-                    <option value="yard" data-i18n="unitYards">יארד</option>
-                    <option value="mile" data-i18n="unitMiles">מיילים</option>
-                    </select>
-                </div>
-                <div class="input-row">
-                    <label for="length_to" data-i18n="lengthToLabel">ל:</label>
-                    <select id="length_to">
-                    <option value="cm" data-i18n="unitCentimeters">סנטימטרים</option>
-                    <option value="m" data-i18n="unitMeters">מטרים</option>
-                    <option value="km" data-i18n="unitKilometers">קילומטרים</option>
-                    <option value="inch" data-i18n="unitInches">אינצ'ים</option>
-                    <option value="foot" data-i18n="unitFeet">פיט</option>
-                    <option value="yard" data-i18n="unitYards">יארד</option>
-                    <option value="mile" data-i18n="unitMiles">מיילים</option>
-                    </select>
-                </div>
-            </div>
-
-            <div id="wordCount-options" class="option-group">
-                <div class="action-header" data-i18n="actionWordCount">ספירת מילים ואותיות</div>
-                <label for="mainInputWordCount" data-i18n="wordCountLabel">הכנס טקסט לספירה:</label>
-                <textarea id="mainInputWordCount" data-i18n-placeholder="wordCountPlaceholder"
-                    placeholder="הכנס טקסט לספירה"></textarea>
-            </div>
-
-            <div id="qrCode-options" class="option-group">
-                <div class="action-header" data-i18n="actionQrCode">יצירת קוד QR</div>
-                <label for="mainInputQrCode" data-i18n="qrCodeLabel">הכנס טקסט ליצירת קוד QR:</label>
-                <textarea id="mainInputQrCode" data-i18n-placeholder="qrCodePlaceholder"
-                    placeholder="הכנס טקסט ליצירת קוד QR"></textarea>
-                <div id="qr-code-container">
-                    <div id="qr-code"></div>
-                    <div class="download-buttons">
-                        <button class="download-btn" id="download-png">
-                            <i class="fas fa-download"></i> הורד כ-PNG
-                        </button>
-                        <button class="download-btn" id="download-pdf">
-                            <i class="fas fa-file-pdf"></i> הורד כ-PDF
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="financialCalculator-options" class="option-group">
-                <div class="action-header" data-i18n="actionFinancialCalculator">מחשבון פיננסי</div>
-                <div class="input-row">
-                    <label for="principal" data-i18n="principalLabel">סכום הקרן:</label>
-                    <input type="text" id="principal" data-i18n-placeholder="principalPlaceholder" placeholder="הכנס סכום">
-                </div>
-                <div class="input-row">
-                    <label for="interestRate" data-i18n="interestRateLabel">שיעור ריבית שנתי (%):</label>
-                    <input type="text" id="interestRate" data-i18n-placeholder="interestRatePlaceholder"
-                        placeholder="הכנס ריבית">
-                </div>
-                <div class="input-row">
-                    <label for="years" data-i18n="yearsLabel">מספר שנים:</label>
-                    <input type="text" id="years" data-i18n-placeholder="yearsPlaceholder" placeholder="הכנס שנים">
-                </div>
-            </div>
-
-            <div id="bmi-options" class="option-group">
-                <div class="action-header" data-i18n="actionBMI">חישוב BMI</div>
-                <div class="input-row">
-                    <label for="weight" data-i18n="weightLabel">משקל (ק"ג):</label>
-                    <input type="text" id="weight" data-i18n-placeholder="weightPlaceholder" placeholder="הכנס משקל">
-                </div>
-                <div class="input-row">
-                    <label for="height" data-i18n="heightLabel">גובה (ס"מ):</label>
-                    <input type="text" id="height" data-i18n-placeholder="heightPlaceholder" placeholder="הכנס גובה">
-                </div>
-            </div>
-
-            <div id="temperatureConvert-options" class="option-group">
-                <div class="action-header" data-i18n="actionTemperatureConvert">המרת טמפרטורה</div>
-                <div class="input-row">
-                    <label for="mainInputTemp" data-i18n="tempValueLabel">הכנס ערך להמרה:</label>
-                    <input type="text" id="mainInputTemp" data-i18n-placeholder="tempValuePlaceholder" placeholder="הכנס מספר">
-                </div>
-                <div class="input-row">
-                    <label for="temp_from" data-i18n="tempFromLabel">מ:</label>
-                    <select id="temp_from">
-                    <option value="celsius">צלזיוס</option>
-                    <option value="fahrenheit">פרנהייט</option>
-                    <option value="kelvin">קלווין</option>
-                    </select>
-                </div>
-                <div class="input-row">
-                    <label for="temp_to" data-i18n="tempToLabel">ל:</label>
-                    <select id="temp_to">
-                    <option value="celsius">צלזיוס</option>
-                    <option value="fahrenheit">פרנהייט</option>
-                    <option value="kelvin">קלווין</option>
-                    </select>
-                </div>
-            </div>
-
-            <div id="imageConverter-options" class="option-group">
-                <div class="action-header" data-i18n="actionImageConverter">ממיר תמונות</div>
-                <label for="imageInput" data-i18n="imageLabel">העלה תמונה:</label>
-                <input type="file" id="imageInput" accept="image/*">
-                <label for="convertType" data-i18n="convertTypeLabel">סוג המרה:</label>
-                <select id="convertType">
-                    <option value="grayscale" data-i18n="grayscale">שחור לבן</option>
-                    <option value="invert" data-i18n="invert">הפוך צבעים</option>
-                    <option value="sepia" data-i18n="sepia">ספיה</option>
-                    <option value="png" data-i18n="toPng">המר ל-PNG</option>
-                    <option value="jpeg" data-i18n="toJpeg">המר ל-JPEG</option>
-                </select>
-                <div id="converted-image-container" style="margin-top: 15px; display: none;">
-                    <img id="converted-image" style="max-width: 300px; border-radius: var(--border-radius);">
-                    <button class="convert-image-btn" id="download-converted-image" style="margin-top: 10px;">
-                        <i class="fas fa-download"></i> הורד תמונה
-                    </button>
-                </div>
-            </div>
-
-            <button id="process" data-i18n="processButton">
-                <i class="fas fa-play"></i> בצע
-            </button>
-
-            <div id="result-container">
-                <div id="result-text" data-i18n="resultText">תוצאה תופיע כאן</div>
-                <button class="download-result-btn" id="download-result-btn" style="display: none; margin-top: 10px; width: 100%;">
-                    <i class="fas fa-download"></i> <span data-i18n="downloadResult">הורד תוצאה כקובץ</span>
-                </button>
-            </div>
-        </div>
+<!-- ============ CONTACT / FOOTER ============ -->
+<footer id="contact">
+  <div class="container footer-grid">
+    <div class="footer-brand reveal">
+      <b>אבהתנא · אתרוגים מרוקאים</b>
+      <p>אתרוגי אבהתנא — אתרוגים מרוקאים ואתרוגים תימניים יביע אומר. מסורת של הידור וטוהר, כבר 100 שנה. אנו כאן כדי שהחג שלכם יהיה מהודר באמת.</p>
+      <div style="display:flex;gap:12px;margin-top:22px;">
+        <a href="#" class="icon-btn" style="width:38px;height:38px;">f</a>
+        <a href="#" class="icon-btn" style="width:38px;height:38px;">◎</a>
+      </div>
     </div>
-
-    <script>
-        const bodyElement = document.body;
-        const languageSelect = document.getElementById('language-select');
-        const resultTextElement = document.getElementById('result-text');
-        const qrCodeContainer = document.getElementById('qr-code-container');
-        const processButton = document.getElementById('process');
-        const qrCodeDiv = document.getElementById('qr-code');
-        const downloadPngBtn = document.getElementById('download-png');
-        const downloadPdfBtn = document.getElementById('download-pdf');
-        const themeToggle = document.getElementById('theme-toggle');
-        const imageInput = document.getElementById('imageInput');
-        const convertType = document.getElementById('convertType');
-        const convertedImage = document.getElementById('converted-image');
-        const downloadConvertedImageBtn = document.getElementById('download-converted-image');
-        const convertedImageContainer = document.getElementById('converted-image-container');
-        const hamburgerBtn = document.getElementById('hamburger-btn');
-        const sidebar = document.getElementById('sidebar');
-        const sidebarOverlay = document.getElementById('sidebar-overlay');
-        const downloadResultBtn = document.getElementById('download-result-btn');
-        let currentAction = 'select';
-        let scanner;
-        let canvas;
-        let lastResult = '';
-
-        // קבוצות האופציות
-        const inputOptionsDiv = document.getElementById('input-options');
-        const findOptionsDiv = document.getElementById('find-options');
-        const calculateOptionsDiv = document.getElementById('calculate-options');
-        const reverseOptionsDiv = document.getElementById('reverse-options');
-        const gematriaOptionsDiv = document.getElementById('gematria-options');
-        const atbashOptionsDiv = document.getElementById('atbash_letters-options');
-        const lengthOptionsDiv = document.getElementById('lengthConvert-options');
-        const wordCountOptionsDiv = document.getElementById('wordCount-options');
-        const qrCodeOptionsDiv = document.getElementById('qrCode-options');
-        const financialCalculatorOptionsDiv = document.getElementById('financialCalculator-options');
-        const bmiOptionsDiv = document.getElementById('bmi-options');
-        const temperatureOptionsDiv = document.getElementById('temperatureConvert-options');
-        const imageConverterOptionsDiv = document.getElementById('imageConverter-options');
-
-        // פונקציונליות תפריט המבורגר
-        hamburgerBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            sidebar.classList.toggle('active');
-            sidebarOverlay.classList.toggle('active');
-
-            // מניעת גלילה כשהתפריט פתוח במובייל
-            if (sidebar.classList.contains('active')) {
-                document.body.style.overflow = 'hidden';
-            } else {
-                document.body.style.overflow = '';
-            }
-        });
-
-        // שיפור התמקדות בשדות קלט במובייל בלבד
-        if (window.innerWidth <= 768) {
-            const allInputs = document.querySelectorAll('input[type="text"], textarea, select');
-            allInputs.forEach(input => {
-                input.addEventListener('focus', function() {
-                    // גלילה חלקה לאלמנט בפוקוס
-                    setTimeout(() => {
-                        this.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }, 100);
-                });
-            });
-        }
-
-        sidebarOverlay.addEventListener('click', () => {
-            sidebar.classList.remove('active');
-            sidebarOverlay.classList.remove('active');
-            document.body.style.overflow = '';
-        });
-
-        // סגירת תפריט בלחיצה על כפתור בצד הנייד
-        document.querySelectorAll('.sidebar-button').forEach(button => {
-            button.addEventListener('click', () => {
-                if (window.innerWidth <= 768) {
-                    sidebar.classList.remove('active');
-                    sidebarOverlay.classList.remove('active');
-                    document.body.style.overflow = '';
-                }
-            });
-        });
-
-        const i18n = {
-            he: {
-                title: "כלי רב-תכליתי",
-                selectAction: "בחר פעולה",
-                categoryCalculations: "חישובים",
-                categoryText: "כלי טקסט",
-                categoryConverters: "ממירים",
-                categoryMedia: "מדיה וכלים",
-                actionCalculate: "חשבון",
-                actionFind: "חפש מילה",
-                actionReverse: "הפוך סדר טקסט",
-                actionGematria: "גימטריה",
-                actionAtbash: "א\"ת ב\"ש",
-                actionWordCount: "ספירת מילים ואותיות",
-                actionLengthConvert: "המרת אורך",
-                actionQrCode: "יצירת קוד QR",
-                actionFinancialCalculator: "מחשבון פיננסי",
-                actionBMI: "חישוב BMI",
-                actionTemperatureConvert: "המרת טמפרטורה",
-                actionImageConverter: "ממיר תמונות",
-                inputLabel: "הכנס טקסט או ערך:",
-                inputPlaceholder: "הזן טקסט או מספר לפעולה הרצויה",
-                findTextPlaceholder: "הזן את הטקסט שבו תרצה לחפש",
-                findWordLabel: "מילה לחיפוש:",
-                findWordPlaceholder: "הכנס מילה לחיפוש",
-                calcLabel: "הכנס תרגיל חשבוני:",
-                calcPlaceholder: "לדוגמה: 5 + 3 * 2",
-                reverseLabel: "הכנס טקסט להיפוך:",
-                reversePlaceholder: "הכנס טקסט שברצונך להפוך את סדרו",
-                gematriaLabel: "הכנס טקסט בעברית לחישוב גימטריה:",
-                gematriaPlaceholder: "הכנס טקסט בעברית",
-                atbashLabel: "הכנס טקסט בעברית להמרה לא\"ת ב\"ש:",
-                atbashPlaceholder: "הכנס טקסט בעברית להמרה",
-                wordCountLabel: "הכנס טקסט לספירה:",
-                wordCountPlaceholder: "הכנס טקסט לספירה",
-                lengthValueLabel: "הכנס ערך להמרה:",
-                lengthValuePlaceholder: "הכנס מספר",
-                lengthFromLabel: "מ:",
-                lengthToLabel: "ל:",
-                qrCodeLabel: "הכנס טקסט ליצירת קוד QR:",
-                qrCodePlaceholder: "הכנס טקסט ליצירת קוד QR",
-                principalLabel: "סכום הקרן:",
-                principalPlaceholder: "הכנס סכום",
-                interestRateLabel: "שיעור ריבית שנתי (%):",
-                interestRatePlaceholder: "הכנס ריבית",
-                yearsLabel: "מספר שנים:",
-                yearsPlaceholder: "הכנס שנים",
-                weightLabel: "משקל (ק\"ג):",
-                weightPlaceholder: "הכנס משקל",
-                heightLabel: "גובה (ס\"מ):",
-                heightPlaceholder: "הכנס גובה",
-                tempValueLabel: "הכנס ערך להמרה:",
-                tempValuePlaceholder: "הכנס מספר",
-                tempFromLabel: "מ:",
-                tempToLabel: "ל:",
-                processButton: "בצע",
-                resultText: "תוצאה תופיע כאן",
-                calculateError: "אני מצטער, אני לא יכול לחשב את ��ה.",
-                noTextEntered: "לא הוכנס טקסט.",
-                noWordToFind: "לא הוכנסה מילה לחיפוש.",
-                invalidNumber: "אנא הכנס מספר תקין.",
-                conversionError: "שגיאת המרה.",
-                wordCountResult: "מספר מילים: {0}, מספר אותיות: {1}",
-                qrCode: "קוד QR נוצר בהצלחה",
-                financialResult: "תשלום חודשי: {0}",
-                selectActionFirst: "אנא בחר פעולה תחילה",
-                unitMeters: "מטרים",
-                unitCentimeters: "סנטימטרים",
-                unitKilometers: "קילומטרים",
-                unitInches: "אינצ'ים",
-                unitFeet: "פיט",
-                unitYards: "יארד",
-                unitMiles: "מיילים",
-                wordCountNoText: "לא הוכנס טקסט לספירה.",
-                wordFound: "המילה '{0}' נמצאה {1} פעמים בטקסט.",
-                wordNotFound: "המילה '{0}' לא נמצאה בטקסט.",
-                lengthConversionResult: "המרה מ{0} ל{1}: {2} {0} = {3} {1}.",
-                bmiResult: "ה-BMI שלך הוא: {0} ({1})",
-                temperatureConversionResult: "המרה מ{0} ל{1}: {2}° {0} = {3}° {1}",
-
-                bmiUnderweight: "תת משקל",
-                bmiNormal: "משקל תקין",
-                bmiOverweight: "עודף משקל",
-                bmiObese: "השמנה",
-                imageLabel: "העלה תמונה:",
-                convertTypeLabel: "סוג המרה:",
-                grayscale: "שחור לבן",
-                invert: "הפוך צבעים",
-                sepia: "ספיה",
-                toPng: "המר ל-PNG",
-                toJpeg: "המר ל-JPEG",
-                imageConverted: "התמונה הומרה בהצלחה!",
-                downloadResult: "הורד תוצאה כקובץ"
-            },
-            en: {
-                title: "Multi-Tool",
-                selectAction: "Select Action",
-                categoryCalculations: "Calculations",
-                categoryText: "Text Tools",
-                categoryConverters: "Converters",
-                categoryMedia: "Media & Tools",
-                actionCalculate: "Calculate",
-                actionFind: "Find Word",
-                actionReverse: "Reverse Text",
-                actionGematria: "Gematria",
-                actionAtbash: "Atbash Cipher",
-                actionWordCount: "Count Words and Letters",
-                actionLengthConvert: "Length Conversion",
-                actionQrCode: "Generate QR Code",
-                actionFinancialCalculator: "Financial Calculator",
-                actionBMI: "Calculate BMI",
-                actionTemperatureConvert: "Temperature Conversion",
-                actionImageConverter: "Image Converter",
-                inputLabel: "Enter Text or Value:",
-                inputPlaceholder: "Enter text or number for the desired action",
-                findTextPlaceholder: "Enter the text where you want to search",
-                findWordLabel: "Word to Find:",
-                findWordPlaceholder: "Enter word to find",
-                calcLabel: "Enter Arithmetic Expression:",
-                calcPlaceholder: "Example: 5 + 3 * 2",
-                reverseLabel: "Enter Text to Reverse:",
-                reversePlaceholder: "Enter text you want to reverse",
-                gematriaLabel: "Enter Hebrew text to calculate Gematria:",
-                gematriaPlaceholder: "Enter Hebrew text",
-                atbashLabel: "Enter Hebrew text to convert to Atbash:",
-                atbashPlaceholder: "Enter Hebrew text to convert",
-                wordCountLabel: "Enter text to count:",
-                wordCountPlaceholder: "Enter text to count",
-                lengthValueLabel: "Enter value to convert:",
-                lengthValuePlaceholder: "Enter number",
-                lengthFromLabel: "From:",
-                lengthToLabel: "To:",
-                qrCodeLabel: "Enter text to generate QR code:",
-                qrCodePlaceholder: "Enter text to generate QR code",
-                principalLabel: "Principal Amount:",
-                principalPlaceholder: "Enter amount",
-                interestRateLabel: "Annual Interest Rate (%):",
-                interestRatePlaceholder: "Enter interest rate",
-                yearsLabel: "Number of Years:",
-                yearsPlaceholder: "Enter years",
-                weightLabel: "Weight (kg):",
-                weightPlaceholder: "Enter weight",
-                heightLabel: "Height (cm):",
-                heightPlaceholder: "Enter height",
-                tempValueLabel: "Enter value to convert:",
-                tempValuePlaceholder: "Enter number",
-                tempFromLabel: "From:",
-                tempToLabel: "To:",
-                                processButton: "Process",
-                resultText: "Result will appear here",
-                calculateError: "I'm sorry, I can't calculate that.",
-                noTextEntered: "No text entered.",
-                noWordToFind: "No word to find entered.",
-                invalidNumber: "Please enter a valid number.",
-                conversionError: "Conversion error.",
-                wordCountResult: "Word count: {0}, Letter count: {1}",
-                qrCode: "QR code generated successfully",
-                financialResult: "Monthly payment: {0}",
-                selectActionFirst: "Please select an action first",
-                unitMeters: "Meters",
-                unitCentimeters: "Centimeters",
-                unitKilometers: "Kilometers",
-                unitInches: "Inches",
-                unitFeet: "Feet",
-                unitYards: "Yards",
-                unitMiles: "Miles",
-                wordCountNoText: "No text entered to count.",
-                wordFound: "The word '{0}' was found {1} times in the text.",
-                wordNotFound: "The word '{0}' was not found in the text.",
-                lengthConversionResult: "Conversion from {0} to {1}: {2} {0} = {3} {1}.",
-                bmiResult: "Your BMI is: {0} ({1})",
-                temperatureConversionResult: "Conversion from {0} to {1}: {2}° {0} = {3}�� {1}",
-                                bmiUnderweight: "Underweight",
-                bmiNormal: "Normal weight",
-                bmiOverweight: "Overweight",
-                bmiObese: "Obese",
-                imageLabel: "Upload image:",
-                convertTypeLabel: "Conversion type:",
-                grayscale: "Grayscale",
-                invert: "Invert colors",
-                sepia: "Sepia",
-                toPng: "Convert to PNG",
-                toJpeg: "Convert to JPEG",
-                imageConverted: "Image converted successfully!",
-                downloadResult: "Download result as file"
-            }
-        };
-
-        function updateContent(lang) {
-            document.querySelectorAll('[data-i18n]').forEach(element => {
-                const key = element.dataset.i18n;
-                if (i18n[lang] && i18n[lang][key]) {
-                    if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
-                        element.placeholder = i18n[lang][key];
-                    } else {
-                        element.textContent = i18n[lang][key];
-                    }
-                }
-            });
-
-            // עדכון כיוון הטקסט בהתאם לשפה
-            if (lang === 'he') {
-                bodyElement.setAttribute('dir', 'rtl');
-            } else {
-                bodyElement.setAttribute('dir', 'ltr');
-            }
-        }
-
-        languageSelect.addEventListener('change', (event) => {
-            const selectedLanguage = event.target.value;
-            updateContent(selectedLanguage);
-            localStorage.setItem('selectedLanguage', selectedLanguage);
-        });
-
-        // טעינת שפה שמורה (אם יש)
-        const savedLanguage = localStorage.getItem('selectedLanguage');
-        if (savedLanguage) {
-            languageSelect.value = savedLanguage;
-            updateContent(savedLanguage);
-        } else {
-            // ברירת מחדל לעברית
-            updateContent('he');
-        }
-
-        function showOptions(optionDiv) {
-            hideAllOptions();
-            if (optionDiv) {
-                optionDiv.style.display = 'block';
-            }
-            // נקה את התוצאה כשעוברים קטגוריה
-            resultTextElement.textContent = i18n[languageSelect.value].resultText;
-            qrCodeContainer.style.display = 'none';
-            convertedImageContainer.style.display = 'none';
-            downloadResultBtn.style.display = 'none';
-            lastResult = '';
-        }
-
-        function hideAllOptions() {
-            const options = document.querySelectorAll('.option-group');
-            options.forEach(option => {
-                option.style.display = 'none';
-            });
-            qrCodeContainer.style.display = 'none';
-            convertedImageContainer.style.display = 'none';
-            // הסר active class מכל כפתורים
-            document.querySelectorAll('.sidebar-button').forEach(btn => btn.classList.remove('active'));
-        }
-
-        document.querySelectorAll('.sidebar-button').forEach(button => {
-            button.addEventListener('click', () => {
-                const action = button.dataset.action;
-                currentAction = action;
-                showOptions(getOptionDiv(action));
-                button.classList.add('active');
-            });
-        });
-
-        function getOptionDiv(action) {
-            switch (action) {
-                case 'calculate': return calculateOptionsDiv;
-                case 'find': return findOptionsDiv;
-                case 'reverse': return reverseOptionsDiv;
-                case 'gematria': return gematriaOptionsDiv;
-                case 'atbash_letters': return atbashOptionsDiv;
-                case 'wordCount': return wordCountOptionsDiv;
-                case 'lengthConvert': return lengthOptionsDiv;
-                case 'qrCode': return qrCodeOptionsDiv;
-                case 'financialCalculator': return financialCalculatorOptionsDiv;
-                case 'bmi': return bmiOptionsDiv;
-                case 'temperatureConvert': return temperatureOptionsDiv;
-                case 'imageConverter': return imageConverterOptionsDiv;
-                default: return inputOptionsDiv;
-            }
-        }
-
-        function ensureMobileInputVisibility() {
-            if (window.innerWidth > 768 || currentAction !== 'select') {
-                return;
-            }
-            inputOptionsDiv.style.display = 'block';
-        }
-
-        function initDefaultActionForMobile() {
-            if (window.innerWidth <= 768) {
-                currentAction = 'calculate';
-                showOptions(calculateOptionsDiv);
-                const defaultButton = document.querySelector('.sidebar-button[data-action="calculate"]');
-                if (defaultButton) {
-                    defaultButton.classList.add('active');
-                }
-            } else {
-                currentAction = 'select';
-                showOptions(inputOptionsDiv);
-            }
-        }
-
-        function refreshViewportHeight() {
-            const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-            document.documentElement.style.setProperty('--app-height', `${viewportHeight}px`);
-        }
-
-        if (window.visualViewport) {
-            window.visualViewport.addEventListener('resize', refreshViewportHeight);
-            window.visualViewport.addEventListener('scroll', refreshViewportHeight);
-        }
-
-        window.addEventListener('resize', () => {
-            refreshViewportHeight();
-            ensureMobileInputVisibility();
-        });
-
-        refreshViewportHeight();
-        initDefaultActionForMobile();
-
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = document.body.getAttribute('data-theme');
-            if (currentTheme === 'dark') {
-                document.body.removeAttribute('data-theme');
-                themeToggle.innerHTML = '<i class="fas fa-moon"></i> מצב כהה';
-                localStorage.setItem('theme', 'light');
-            } else {
-                document.body.setAttribute('data-theme', 'dark');
-                themeToggle.innerHTML = '<i class="fas fa-sun"></i> מצב בהיר';
-                localStorage.setItem('theme', 'dark');
-            }
-        });
-
-        // טעינת ערכת נושא שמורה
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
-            document.body.setAttribute('data-theme', 'dark');
-            themeToggle.innerHTML = '<i class="fas fa-sun"></i> מצב בהיר';
-        } else {
-            themeToggle.innerHTML = '<i class="fas fa-moon"></i> מצב כהה';
-        }
-
-        imageInput.addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        canvas = document.createElement('canvas');
-                        canvas.width = img.width;
-                        canvas.height = img.height;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0);
-                        applyConversion();
-                    };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        convertType.addEventListener('change', applyConversion);
-
-        function applyConversion() {
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            const type = convertType.value;
-
-            if (type === 'png' || type === 'jpeg') {
-                const mime = type === 'png' ? 'image/png' : 'image/jpeg';
-                const quality = type === 'jpeg' ? 0.8 : undefined;
-                convertedImage.src = canvas.toDataURL(mime, quality);
-                convertedImageContainer.style.display = 'block';
-                resultTextElement.textContent = i18n[languageSelect.value].imageConverted;
-            } else {
-                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                const data = imageData.data;
-
-                for (let i = 0; i < data.length; i += 4) {
-                    const r = data[i];
-                    const g = data[i + 1];
-                    const b = data[i + 2];
-
-                    if (type === 'grayscale') {
-                        const gray = 0.299 * r + 0.587 * g + 0.114 * b;
-                        data[i] = data[i + 1] = data[i + 2] = gray;
-                    } else if (type === 'invert') {
-                        data[i] = 255 - r;
-                        data[i + 1] = 255 - g;
-                        data[i + 2] = 255 - b;
-                    } else if (type === 'sepia') {
-                        data[i] = Math.min(255, r * 0.393 + g * 0.769 + b * 0.189);
-                        data[i + 1] = Math.min(255, r * 0.349 + g * 0.686 + b * 0.168);
-                        data[i + 2] = Math.min(255, r * 0.272 + g * 0.534 + b * 0.131);
-                    }
-                }
-
-                ctx.putImageData(imageData, 0, 0);
-                convertedImage.src = canvas.toDataURL();
-                convertedImageContainer.style.display = 'block';
-                resultTextElement.textContent = i18n[languageSelect.value].imageConverted;
-            }
-        }
-
-        downloadConvertedImageBtn.addEventListener('click', () => {
-            if (canvas) {
-                try {
-                    const type = convertType.value;
-                    const mime = type === 'png' || type === 'jpeg' ? (type === 'png' ? 'image/png' : 'image/jpeg') : 'image/png';
-                    const extension = type === 'jpeg' ? 'jpg' : 'png';
-
-                    canvas.toBlob(function(blob) {
-                        if (!blob) {
-                            // Fallback for browsers that don't support toBlob
-                            const link = document.createElement('a');
-                            link.download = 'converted_image.' + extension;
-                            link.href = canvas.toDataURL(mime);
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-                            return;
-                        }
-
-                        const url = URL.createObjectURL(blob);
-                        const link = document.createElement('a');
-                        link.download = 'converted_image.' + extension;
-                        link.href = url;
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                        setTimeout(() => URL.revokeObjectURL(url), 1000);
-                    }, mime);
-                } catch (e) {
-                    // Fallback
-                    const type = convertType.value;
-                    const mime = type === 'png' || type === 'jpeg' ? (type === 'png' ? 'image/png' : 'image/jpeg') : 'image/png';
-                    const link = document.createElement('a');
-                    link.download = 'converted_image.' + (type === 'jpeg' ? 'jpg' : 'png');
-                    link.href = canvas.toDataURL(mime);
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                }
-            }
-        });
-
-        // הורדת תוצאה כקובץ טקסט
-        downloadResultBtn.addEventListener('click', () => {
-            if (!lastResult) return;
-
-            try {
-                const blob = new Blob([lastResult], { type: 'text/plain;charset=utf-8' });
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-
-                // שם קובץ מותאם לפעולה
-                let filename = 'result.txt';
-                switch(currentAction) {
-                    case 'calculate':
-                        filename = 'calculation_result.txt';
-                        break;
-                    case 'gematria':
-                        filename = 'gematria_result.txt';
-                        break;
-                    case 'atbash_letters':
-                        filename = 'atbash_result.txt';
-                        break;
-                    case 'reverse':
-                        filename = 'reversed_text.txt';
-                        break;
-                    case 'wordCount':
-                        filename = 'word_count_result.txt';
-                        break;
-                    case 'lengthConvert':
-                        filename = 'length_conversion.txt';
-                        break;
-                    case 'temperatureConvert':
-                        filename = 'temperature_conversion.txt';
-                        break;
-                    case 'financialCalculator':
-                        filename = 'financial_calculation.txt';
-                        break;
-                    case 'bmi':
-                        filename = 'bmi_result.txt';
-                        break;
-                    default:
-                        filename = 'result.txt';
-                }
-
-                link.download = filename;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                setTimeout(() => {
-                    URL.revokeObjectURL(url);
-                }, 1000);
-            } catch (e) {
-                console.error('Error downloading result:', e);
-                // Fallback method for older browsers
-                const link = document.createElement('a');
-                link.download = 'result.txt';
-                link.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(lastResult);
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }
-        });
-
-        function calculateExpression(expression) {
-            try {
-                // החלפת תווי יוניקוד בתווים רגילים
-                expression = expression.replace(/[\u00a0\u200b\u2003]/g, ' ');
-                return new Function('return ' + expression)();
-            } catch (e) {
-                return null;
-            }
-        }
-
-        function reverseText(text) {
-            return text.split('').reverse().join('');
-        }
-
-        function calculateGematria(text) {
-            const gematriaValues = {
-                'א': 1, 'ב': 2, 'ג': 3, 'ד': 4, 'ה': 5, 'ו': 6, 'ז': 7, 'ח': 8, 'ט': 9, 'י': 10,
-                'כ': 20, 'ל': 30, 'מ': 40, 'נ': 50, 'ס': 60, 'ע': 70, 'פ': 80, 'צ': 90, 'ק': 100,
-                'ר': 200, 'ש': 300, 'ת': 400, 'ך': 500, 'ם': 600, 'ן': 700, 'ף': 800, 'ץ': 900
-            };
-            let total = 0;
-            for (let char of text) {
-                if (gematriaValues[char]) {
-                    total += gematriaValues[char];
-                }
-            }
-            return total;
-        }
-
-        function atbash(text) {
-            const atbashMap = {
-                'א': 'ת', 'ב': 'ש', 'ג': 'ר', 'ד': 'ק', 'ה': 'צ', 'ו': 'פ', 'ז': 'ע', 'ח': 'ס', 'ט': 'נ', 'י': 'מ',
-                'כ': 'ל', 'ל': 'כ', 'מ': 'י', 'נ': 'ט', 'ס': 'ח', 'ע': 'ז', 'פ': 'ו', 'צ': 'ה', 'ק': 'ד', 'ר': 'ג',
-                'ש': 'ב', 'ת': 'א', 'ך': 'ץ', 'ם': 'ף', 'ן': 'ץ', 'ף': 'ם', 'ץ': 'ך'
-            };
-            let result = '';
-            for (let char of text) {
-                result += atbashMap[char] || char;
-            }
-            return result;
-        }
-
-        function countWordsAndLetters(text) {
-            if (!text) return { words: 0, letters: 0 };
-            const words = text.trim().split(/\s+/).filter(word => word !== '').length;
-            const letters = text.replace(/\s/g, '').length;
-            return { words, letters };
-        }
-
-        function convertLength(value, fromUnit, toUnit) {
-            const conversions = {
-                cm: 1,
-                m: 100,
-                km: 100000,
-                inch: 2.54,
-                foot: 30.48,
-                yard: 91.44,
-                mile: 160934.4
-            };
-
-            if (!conversions[fromUnit] || !conversions[toUnit]) {
-                return null; // יחידה לא חוקית
-            }
-
-            return value * (conversions[fromUnit] / conversions[toUnit]);
-        }
-
-        function generateQRCode(text) {
-            qrCodeDiv.innerHTML = ''; // נקה קודם
-            const qrcode = new QRCode(qrCodeDiv, {
-                text: text,
-                width: 200,
-                height: 200
-            });
-            return qrcode;
-        }
-
-        function downloadQRAsPNG() {
-            const canvas = qrCodeDiv.querySelector('canvas');
-            if (canvas) {
-                try {
-                    canvas.toBlob(function(blob) {
-                        if (!blob) {
-                            // Fallback for browsers that don't support toBlob
-                            const link = document.createElement('a');
-                            link.download = 'qrcode.png';
-                            link.href = canvas.toDataURL('image/png');
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-                            return;
-                        }
-
-                        // Modern browsers with better mobile support
-                        const url = URL.createObjectURL(blob);
-                        const link = document.createElement('a');
-                        link.download = 'qrcode.png';
-                        link.href = url;
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                        setTimeout(() => URL.revokeObjectURL(url), 1000);
-                    }, 'image/png');
-                } catch (e) {
-                    // Fallback for any errors
-                    const link = document.createElement('a');
-                    link.download = 'qrcode.png';
-                    link.href = canvas.toDataURL('image/png');
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                }
-            }
-        }
-
-        function downloadQRAsPDF() {
-            const canvas = qrCodeDiv.querySelector('canvas');
-            if (canvas) {
-                try {
-                    const { jsPDF } = window.jspdf;
-                    const pdf = new jsPDF();
-                    const imgData = canvas.toDataURL('image/png');
-                    pdf.addImage(imgData, 'PNG', 10, 10, 50, 50);
-                    pdf.save('qrcode.pdf');
-                } catch (e) {
-                    console.error('Error generating PDF:', e);
-                    resultTextElement.textContent = 'שגיאה ביצירת PDF. נסה להוריד כ-PNG במקום.';
-                }
-            }
-        }
-
-        function calculateFinancial(principal, interestRate, years) {
-            const monthlyInterestRate = interestRate / 100 / 12;
-            const numberOfPayments = years * 12;
-
-            const monthlyPayment = (principal * monthlyInterestRate * Math.pow(1 + monthlyInterestRate, numberOfPayments)) /
-                (Math.pow(1 + monthlyInterestRate, numberOfPayments) - 1);
-
-            return monthlyPayment;
-        }
-
-        function findWordInText(text, word) {
-            if (!text || !word) return { found: false, count: 0 };
-            const regex = new RegExp(word, 'g');
-            const matches = text.match(regex);
-            const count = matches ? matches.length : 0;
-            return { found: count > 0, count: count };
-        }
-
-        function highlightWords(text, word) {
-            if (!text || !word) return text;
-            const regex = new RegExp(word, 'gi');
-            return text.replace(regex, match => `<span class="highlight">${match}</span>`);
-        }
-
-        function calculateBMI(weight, height) {
-            if (weight <= 0 || height <= 0) return null;
-            const heightInMeters = height / 100;
-            const bmi = weight / (heightInMeters * heightInMeters);
-            let category;
-            if (bmi < 18.5) category = i18n[languageSelect.value].bmiUnderweight;
-            else if (bmi < 25) category = i18n[languageSelect.value].bmiNormal;
-            else if (bmi < 30) category = i18n[languageSelect.value].bmiOverweight;
-            else category = i18n[languageSelect.value].bmiObese;
-            return { bmi: bmi.toFixed(1), category };
-        }
-
-        function convertTemperature(value, fromUnit, toUnit) {
-            if (fromUnit === toUnit) return value;
-            let celsius;
-            switch (fromUnit) {
-                case 'celsius': celsius = value; break;
-                case 'fahrenheit': celsius = (value - 32) * 5/9; break;
-                case 'kelvin': celsius = value - 273.15; break;
-            }
-            switch (toUnit) {
-                case 'celsius': return celsius;
-                case 'fahrenheit': return celsius * 9/5 + 32;
-                case 'kelvin': return celsius + 273.15;
-            }
-        }
-
-        downloadPngBtn.addEventListener('click', downloadQRAsPNG);
-        downloadPdfBtn.addEventListener('click', downloadQRAsPDF);
-
-        processButton.addEventListener('click', () => {
-            const selectedAction = currentAction;
-            let result;
-            let inputText;
-
-            switch (selectedAction) {
-                case 'calculate':
-                    inputText = document.getElementById('mainInputCalc').value;
-                    if (!inputText) {
-                        resultTextElement.textContent = i18n[languageSelect.value].noTextEntered;
-                        downloadResultBtn.style.display = 'none';
-                        return;
-                    }
-                    result = calculateExpression(inputText);
-                    if (result === null) {
-                        resultTextElement.textContent = i18n[languageSelect.value].calculateError;
-                        downloadResultBtn.style.display = 'none';
-                    } else {
-                        lastResult = inputText + ' = ' + result;
-                        resultTextElement.textContent = result;
-                        downloadResultBtn.style.display = 'flex';
-                    }
-                    break;
-
-                case 'find':
-                    const textToSearch = document.getElementById('mainInputFind').value;
-                    const wordToSearch = document.getElementById('wordToSearch').value;
-                    if (!textToSearch) {
-                        resultTextElement.textContent = i18n[languageSelect.value].noTextEntered;
-                        downloadResultBtn.style.display = 'none';
-                        return;
-                    }
-                    if (!wordToSearch) {
-                        resultTextElement.textContent = i18n[languageSelect.value].noWordToFind;
-                        downloadResultBtn.style.display = 'none';
-                        return;
-                    }
-                    const findResult = findWordInText(textToSearch, wordToSearch);
-                    if (findResult.found) {
-                        lastResult = i18n[languageSelect.value].wordFound.replace('{0}', wordToSearch).replace('{1}', findResult.count);
-                        resultTextElement.innerHTML = lastResult;
-                        resultTextElement.innerHTML = highlightWords(resultTextElement.innerHTML, wordToSearch);
-                        downloadResultBtn.style.display = 'flex';
-                    } else {
-                        lastResult = i18n[languageSelect.value].wordNotFound.replace('{0}', wordToSearch);
-                        resultTextElement.textContent = lastResult;
-                        downloadResultBtn.style.display = 'flex';
-                    }
-                    break;
-
-                case 'reverse':
-                    inputText = document.getElementById('mainInputReverse').value;
-                    if (!inputText) {
-                        resultTextElement.textContent = i18n[languageSelect.value].noTextEntered;
-                        downloadResultBtn.style.display = 'none';
-                        return;
-                    }
-                    lastResult = reverseText(inputText);
-                    resultTextElement.textContent = lastResult;
-                    downloadResultBtn.style.display = 'flex';
-                    break;
-
-                case 'gematria':
-                    inputText = document.getElementById('mainInputGematria').value;
-                    if (!inputText) {
-                        resultTextElement.textContent = i18n[languageSelect.value].noTextEntered;
-                        downloadResultBtn.style.display = 'none';
-                        return;
-                    }
-                    lastResult = inputText + ' = ' + calculateGematria(inputText);
-                    resultTextElement.textContent = calculateGematria(inputText);
-                    downloadResultBtn.style.display = 'flex';
-                    break;
-
-                case 'atbash_letters':
-                    inputText = document.getElementById('mainInputAtbash').value;
-                    if (!inputText) {
-                        resultTextElement.textContent = i18n[languageSelect.value].noTextEntered;
-                        downloadResultBtn.style.display = 'none';
-                        return;
-                    }
-                    lastResult = atbash(inputText);
-                    resultTextElement.textContent = lastResult;
-                    downloadResultBtn.style.display = 'flex';
-                    break;
-
-                case 'wordCount':
-                    inputText = document.getElementById('mainInputWordCount').value;
-                    if (!inputText) {
-                        resultTextElement.textContent = i18n[languageSelect.value].wordCountNoText;
-                        downloadResultBtn.style.display = 'none';
-                        return;
-                    }
-                    const { words, letters } = countWordsAndLetters(inputText);
-                    lastResult = i18n[languageSelect.value].wordCountResult.replace('{0}', words).replace('{1}', letters);
-                    resultTextElement.textContent = lastResult;
-                    downloadResultBtn.style.display = 'flex';
-                    break;
-
-                case 'lengthConvert':
-                    const lengthValue = parseFloat(document.getElementById('mainInputLength').value);
-                    const fromUnit = document.getElementById('length_from').value;
-                    const toUnit = document.getElementById('length_to').value;
-                    if (isNaN(lengthValue)) {
-                        resultTextElement.textContent = i18n[languageSelect.value].invalidNumber;
-                        downloadResultBtn.style.display = 'none';
-                        return;
-                    }
-                    result = convertLength(lengthValue, fromUnit, toUnit);
-                    if (result !== null) {
-                        lastResult = i18n[languageSelect.value].lengthConversionResult
-                            .replace('{0}', i18n[languageSelect.value]['unit' + fromUnit.charAt(0).toUpperCase() + fromUnit.slice(1)])
-                            .replace('{1}', i18n[languageSelect.value]['unit' + toUnit.charAt(0).toUpperCase() + toUnit.slice(1)])
-                            .replace('{2}', lengthValue)
-                            .replace('{3}', result.toFixed(2));
-                        resultTextElement.textContent = lastResult;
-                        downloadResultBtn.style.display = 'flex';
-                    } else {
-                        resultTextElement.textContent = i18n[languageSelect.value].conversionError;
-                        downloadResultBtn.style.display = 'none';
-                    }
-                    break;
-
-                case 'qrCode':
-                    inputText = document.getElementById('mainInputQrCode').value;
-                    if (!inputText) {
-                        resultTextElement.textContent = i18n[languageSelect.value].noTextEntered;
-                        downloadResultBtn.style.display = 'none';
-                        return;
-                    }
-                    generateQRCode(inputText);
-                    qrCodeContainer.style.display = 'flex';
-                    resultTextElement.textContent = i18n[languageSelect.value].qrCode;
-                    downloadResultBtn.style.display = 'none'; // QR has its own download buttons
-                    break;
-
-                case 'financialCalculator':
-                    const principal = parseFloat(document.getElementById('principal').value);
-                    const interestRate = parseFloat(document.getElementById('interestRate').value);
-                    const years = parseInt(document.getElementById('years').value);
-                    if (isNaN(principal) || isNaN(interestRate) || isNaN(years)) {
-                        resultTextElement.textContent = i18n[languageSelect.value].invalidNumber;
-                        downloadResultBtn.style.display = 'none';
-                        return;
-                    }
-                    result = calculateFinancial(principal, interestRate, years);
-                    lastResult = i18n[languageSelect.value].financialResult.replace('{0}', result.toFixed(2));
-                    resultTextElement.textContent = lastResult;
-                    downloadResultBtn.style.display = 'flex';
-                    break;
-
-                case 'bmi':
-                    const weight = parseFloat(document.getElementById('weight').value);
-                    const height = parseFloat(document.getElementById('height').value);
-                    if (isNaN(weight) || isNaN(height)) {
-                        resultTextElement.textContent = i18n[languageSelect.value].invalidNumber;
-                        downloadResultBtn.style.display = 'none';
-                        return;
-                    }
-                    const bmiResult = calculateBMI(weight, height);
-                    if (bmiResult) {
-                        lastResult = i18n[languageSelect.value].bmiResult.replace('{0}', bmiResult.bmi).replace('{1}', bmiResult.category);
-                        resultTextElement.textContent = lastResult;
-                        downloadResultBtn.style.display = 'flex';
-                    } else {
-                        resultTextElement.textContent = i18n[languageSelect.value].invalidNumber;
-                        downloadResultBtn.style.display = 'none';
-                    }
-                    break;
-
-                case 'temperatureConvert':
-                    const tempValue = parseFloat(document.getElementById('mainInputTemp').value);
-                    const tempFrom = document.getElementById('temp_from').value;
-                    const tempTo = document.getElementById('temp_to').value;
-                    if (isNaN(tempValue)) {
-                        resultTextElement.textContent = i18n[languageSelect.value].invalidNumber;
-                        downloadResultBtn.style.display = 'none';
-                        return;
-                    }
-                    result = convertTemperature(tempValue, tempFrom, tempTo);
-                    lastResult = i18n[languageSelect.value].temperatureConversionResult
-                        .replace('{0}', tempFrom)
-                        .replace('{1}', tempTo)
-                        .replace('{2}', tempValue)
-                        .replace('{3}', result.toFixed(2));
-                    resultTextElement.textContent = lastResult;
-                    downloadResultBtn.style.display = 'flex';
-                    break;
-
-                case 'imageConverter':
-                    // התמונה כבר מעובדת ב-applyConversion
-                    downloadResultBtn.style.display = 'none'; // Image has its own download button
-                    break;
-
-                default:
-                    resultTextElement.textContent = i18n[languageSelect.value].selectActionFirst;
-                    downloadResultBtn.style.display = 'none';
-            }
-        });
-    </script>
+    <div class="footer-col reveal">
+      <h4>ניווט מהיר</h4>
+      <ul>
+        <li><a href="#about">עלינו</a></li>
+        <li><a href="#products">מוצרים</a></li>
+        <li><a href="#gallery">גלריה</a></li>
+        <li><a href="#faq">שאלות ותשובות</a></li>
+      </ul>
+    </div>
+    <div class="footer-col reveal">
+      <h4>יצירת קשר</h4>
+      <ul>
+        <li class="footer-contact-item">📍 <span>רחוב האשכולית 12, ירושלים</span></li>
+        <li class="footer-contact-item">📞 <span dir="ltr">972-54-8407450+</span></li>
+        <li class="footer-contact-item">✉️ <span>info@avhatna-etrog.co.il</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="container bottom-bar">
+    <span>© 2026 אבהתנא אתרוגים מרוקאים. כל הזכויות שמורות.</span>
+    <span>נבנה באהבה ובהידור לכבוד החג 🍋</span>
+  </div>
+</footer>
+
+<!-- ============ WHATSAPP FLOAT ============ -->
+<a class="whatsapp-float" id="waFloat" target="_blank" rel="noopener" aria-label="שלחו לנו הודעת וואטסאפ">
+  <span class="wa-ping"></span>
+  <svg viewBox="0 0 32 32" fill="currentColor"><path d="M16.001 3C9.373 3 4 8.373 4 15c0 2.386.696 4.6 1.898 6.472L4 29l7.72-1.867A11.94 11.94 0 0 0 16 27c6.628 0 12-5.373 12-12S22.629 3 16.001 3zm0 21.8c-1.99 0-3.845-.585-5.404-1.593l-.388-.244-4.583 1.107 1.132-4.47-.253-.396A9.77 9.77 0 0 1 5.2 15c0-5.963 4.837-10.8 10.801-10.8 5.963 0 10.8 4.837 10.8 10.8s-4.837 10.8-10.8 10.8zm5.94-8.096c-.325-.163-1.925-.95-2.223-1.06-.298-.108-.516-.162-.733.163-.217.326-.84 1.06-1.03 1.278-.19.217-.38.244-.705.081-.325-.163-1.372-.505-2.613-1.61-.966-.861-1.618-1.925-1.808-2.25-.19-.326-.02-.502.143-.665.146-.146.325-.38.488-.57.163-.19.217-.326.325-.543.108-.217.054-.407-.027-.57-.081-.163-.733-1.766-1.005-2.418-.264-.634-.532-.548-.733-.558l-.624-.011c-.217 0-.57.081-.868.407-.298.325-1.137 1.112-1.137 2.712 0 1.6 1.164 3.146 1.326 3.363.163.217 2.29 3.497 5.548 4.905.775.334 1.38.534 1.85.684.777.247 1.484.212 2.043.129.623-.093 1.925-.787 2.196-1.548.271-.76.271-1.412.19-1.548-.081-.136-.298-.217-.624-.38z"/></svg>
+</a>
+
+<!-- ============ CART DRAWER ============ -->
+<div class="overlay" id="overlay" onclick="closeAllOverlays()"></div>
+
+<div class="cart-drawer" id="cartDrawer">
+  <div class="cart-header">
+    <h3>סל הקניות שלי</h3>
+    <button class="cart-close" onclick="closeCart()">✕</button>
+  </div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-footer">
+    <div class="cart-total-row"><span>סה"כ לתשלום</span><span id="cartTotal">0 ₪</span></div>
+    <button class="checkout-btn" id="checkoutBtn" onclick="openCheckout()">מעבר לתשלום</button>
+  </div>
+</div>
+
+<!-- ============ CHECKOUT MODAL ============ -->
+<div class="modal" id="checkoutModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>השלמת הזמנה</h3>
+      <button class="modal-close" onclick="closeCheckout()">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="checkoutForm" onsubmit="submitOrder(event)">
+        <div class="field">
+          <label>שם מלא</label>
+          <input type="text" id="custName" required placeholder="ישראל ישראלי">
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>טלפון</label>
+            <input type="tel" id="custPhone" required placeholder="050-1234567">
+          </div>
+          <div class="field">
+            <label>כתובת אימייל</label>
+            <input type="email" id="custEmail" placeholder="לא חובה">
+          </div>
+        </div>
+
+        <div class="method-toggle">
+          <button type="button" class="method-btn active" id="btnDelivery" onclick="setMethod('delivery')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            משלוח עד הבית
+          </button>
+          <button type="button" class="method-btn" id="btnPickup" onclick="setMethod('pickup')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l1-6h16l1 6"/><path d="M3 9h18v11H3z"/><path d="M9 20V13h6v7"/></svg>
+            איסוף עצמי
+          </button>
+        </div>
+
+        <div class="address-fields show" id="addressFields">
+          <div class="field-row">
+            <div class="field">
+              <label>עיר</label>
+              <input type="text" id="custCity" placeholder="ירושלים">
+            </div>
+            <div class="field">
+              <label>רחוב</label>
+              <input type="text" id="custStreet" placeholder="רחוב האשכולית">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>מספר בית</label>
+              <input type="text" id="custHouseNum" placeholder="12">
+            </div>
+            <div class="field">
+              <label>מספר דירה / קומה</label>
+              <input type="text" id="custApt" placeholder="לא חובה">
+            </div>
+          </div>
+          <div class="field">
+            <label>הערות למשלוח</label>
+            <textarea id="custNotes" rows="2" placeholder="קוד כניסה, שעות נוחות וכו׳"></textarea>
+          </div>
+        </div>
+
+        <div class="order-summary" id="orderSummary"></div>
+
+        <button type="submit" class="submit-order">שליחת ההזמנה ✦</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SUCCESS MODAL ============ -->
+<div class="modal" id="successModal">
+  <div class="modal-card" style="text-align:center;">
+    <div class="modal-body" style="padding-top:36px;">
+      <div class="success-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h3 style="font-family:var(--serif);font-size:1.5rem;color:var(--green-deep);margin-bottom:10px;">ההזמנה התקבלה בהצלחה!</h3>
+      <p style="color:var(--ink-soft);margin-bottom:22px;">פרטי ההזמנה נשלחו אלינו. ניצור עמכם קשר בקרוב לאישור סופי ותיאום.</p>
+      <div class="order-summary" id="successSummary" style="text-align:right;"></div>
+      <button class="btn btn-gold" style="width:100%;justify-content:center;margin-top:18px;" onclick="closeSuccess()">סגירה</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= CONFIG ================= */
+const WHATSAPP_NUMBER = "972548407450";
+const PRODUCT_PRICE = 100;
+
+/* ================= HERO ROTATING BACKGROUND ================= */
+const heroBgNames = ["רקע אחד.png","רקע שתיים.png","רקע שלוש.png","רקע ארבע.png","רקע חמש.png"];
+const heroLayer = document.getElementById('heroBgLayer');
+heroBgNames.forEach((name, i)=>{
+  const div = document.createElement('div');
+  div.className = 'hero-bg-slide' + (i===0 ? ' active' : '');
+  div.style.backgroundImage = `url('${name}')`;
+  heroLayer.appendChild(div);
+});
+let heroIdx = 0;
+const heroSlides = document.querySelectorAll('.hero-bg-slide');
+if(heroSlides.length > 1){
+  setInterval(()=>{
+    heroSlides[heroIdx].classList.remove('active');
+    heroIdx = (heroIdx + 1) % heroSlides.length;
+    heroSlides[heroIdx].classList.add('active');
+  }, 10000);
+}
+
+/* ================= HEADER SCROLL ================= */
+const header = document.getElementById('siteHeader');
+window.addEventListener('scroll', ()=>{
+  header.classList.toggle('scrolled', window.scrollY > 40);
+});
+
+function toggleMobileNav(){
+  const nav = document.getElementById('mobileNav');
+  nav.style.display = (nav.style.display === 'flex') ? 'none' : 'flex';
+}
+
+/* ================= WHATSAPP FLOAT LINK ================= */
+document.getElementById('waFloat').href =
+  `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('שלום, אשמח לקבל מידע על האתרוגים שלכם 🍋')}`;
+
+/* ================= PRODUCT DATA ================= */
+const categories = ["מרוקאי","תימני","ארבעת המינים","אביזרים"];
+const productDefs = [
+  {name:"אתרוג מרוקאי מהודר", sub:"זן מרוקאי קלאסי, מהודר במיוחד", cat:"מרוקאי", badge:"נבחר"},
+  {name:"אתרוג מרוקאי מובחר", sub:"מבחר יד ראשונה מהבוסתן", cat:"מרוקאי"},
+  {name:"אתרוג מרוקאי זהב", sub:"צבע זהוב אחיד, פיטם שלם", cat:"מרוקאי", badge:"מומלץ"},
+  {name:"אתרוג מרוקאי פרימיום", sub:"רמת הידור הגבוהה ביותר", cat:"מרוקאי", badge:"פרימיום"},
+  {name:"אתרוג מרוקאי קלאסי", sub:"האתרוג המסורתי של אבהתנא", cat:"מרוקאי"},
+  {name:"אתרוג תימני יביע אומר", sub:"בהידור מרן ה׳יביע אומר׳", cat:"תימני", badge:"מהדרין"},
+  {name:"אתרוג תימני מהודר", sub:"מסורת תימן לדורותיה", cat:"תימני"},
+  {name:"אתרוג תימני מובחר", sub:"נבחר ונבדק בקפידה", cat:"תימני"},
+  {name:"אתרוג תימני זן עתיק", sub:"זן תימני נדיר ומיוחד", cat:"תימני", badge:"נדיר"},
+  {name:"סט ארבעת המינים השלם", sub:"אתרוג, לולב, הדס וערבה", cat:"ארבעת המינים", badge:"הכי נמכר"},
+  {name:"סט ארבעת המינים מהודר", sub:"מארז מלא ברמת הידור גבוהה", cat:"ארבעת המינים"},
+  {name:"לולב מהודר", sub:"לולב ישר וארוך, ירוק ורענן", cat:"ארבעת המינים"},
+  {name:"הדס משולש מהודר", sub:"שלושה עלים בכל שורה", cat:"ארבעת המינים", badge:"מהודר"},
+  {name:"ערבות טריות", sub:"ערבות ירוקות ורעננות לחג", cat:"ארבעת המינים"},
+  {name:"קופסת עץ לאתרוג", sub:"קופסת עץ מעוצבת בעבודת יד", cat:"אביזרים"},
+  {name:"צמר גפן להגנת האתרוג", sub:"שמירה מושלמת על הפיטם", cat:"אביזרים"},
+  {name:"לולב הולדר מהודר", sub:"מחזיק איכותי לארבעת המינים", cat:"אביזרים"},
+  {name:"כיסוי קטיפה לאתרוג", sub:"כיסוי רך ואלגנטי", cat:"אביזרים"},
+  {name:"תיק נשיאה לארבעת המינים", sub:"תיק מהודר לנשיאה לבית הכנסת", cat:"אביזרים", badge:"חדש"},
+  {name:"סט מתנה לחג הסוכות", sub:"מארז מתנה מושלם לחג", cat:"אביזרים", badge:"מתנה"}
+];
+const products = productDefs.map((p,i)=>({
+  id:i+1,
+  img:`${i+1}.png`,
+  price:PRODUCT_PRICE,
+  ...p
+}));
+
+const grid = document.getElementById('productsGrid');
+function renderProducts(filter){
+  grid.innerHTML = "";
+  products
+    .filter(p => filter==='all' || p.cat===filter)
+    .forEach(p=>{
+      const card = document.createElement('div');
+      card.className = 'product-card reveal';
+      card.innerHTML = `
+        <div class="product-media">
+          <img src="${p.img}" alt="${p.name}" onerror="this.parentElement.style.background='linear-gradient(150deg,#e7ddc0,#c9a24b33)'; this.remove();">
+          ${p.badge ? `<span class="product-badge">${p.badge}</span>` : ""}
+        </div>
+        <div class="product-body">
+          <div class="product-cat">${p.cat}</div>
+          <div class="product-title">${p.name}</div>
+          <div class="product-sub">${p.sub}</div>
+          <div class="product-footer">
+            <div class="product-price">${p.price} <span>₪</span></div>
+            <button class="add-btn" onclick="addToCart(${p.id}, this)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+              הוספה לסל
+            </button>
+          </div>
+        </div>`;
+      grid.appendChild(card);
+    });
+  observeReveals();
+}
+renderProducts('all');
+
+document.querySelectorAll('.filter-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderProducts(btn.dataset.filter);
+  });
+});
+
+/* ================= CART ================= */
+let cart = {}; // id -> qty
+
+function addToCart(id, btnEl){
+  cart[id] = (cart[id] || 0) + 1;
+  updateCartUI();
+  showToast("המוצר נוסף לסל הקניות ✦");
+  if(btnEl){
+    btnEl.classList.add('added');
+    const original = btnEl.innerHTML;
+    btnEl.innerHTML = "נוסף ✓";
+    setTimeout(()=>{ btnEl.classList.remove('added'); btnEl.innerHTML = original; }, 1200);
+  }
+}
+
+function changeQty(id, delta){
+  cart[id] = (cart[id] || 0) + delta;
+  if(cart[id] <= 0) delete cart[id];
+  updateCartUI();
+}
+
+function removeFromCart(id){
+  delete cart[id];
+  updateCartUI();
+}
+
+function cartTotalCount(){
+  return Object.values(cart).reduce((a,b)=>a+b,0);
+}
+function cartTotalPrice(){
+  return Object.entries(cart).reduce((sum,[id,qty])=>{
+    const p = products.find(pr=>pr.id==id);
+    return sum + (p ? p.price*qty : 0);
+  },0);
+}
+
+function updateCartUI(){
+  document.getElementById('cartCount').textContent = cartTotalCount();
+  const itemsEl = document.getElementById('cartItems');
+  const ids = Object.keys(cart);
+  if(ids.length === 0){
+    itemsEl.innerHTML = `
+      <div class="cart-empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <div>הסל שלכם ריק כרגע</div>
+      </div>`;
+    document.getElementById('checkoutBtn').disabled = true;
+  } else {
+    itemsEl.innerHTML = ids.map(id=>{
+      const p = products.find(pr=>pr.id==id);
+      const qty = cart[id];
+      return `
+        <div class="cart-item">
+          <div class="cart-item-img"><img src="${p.img}" alt="${p.name}" onerror="this.remove();"></div>
+          <div class="cart-item-info">
+            <b>${p.name}</b>
+            <div class="cart-item-price">${p.price} ₪ ליחידה</div>
+            <div class="qty-row">
+              <button class="qty-btn" onclick="changeQty(${id},-1)">−</button>
+              <span>${qty}</span>
+              <button class="qty-btn" onclick="changeQty(${id},1)">+</button>
+              <button class="cart-remove" onclick="removeFromCart(${id})">הסרה</button>
+            </div>
+          </div>
+        </div>`;
+    }).join("");
+    document.getElementById('checkoutBtn').disabled = false;
+  }
+  document.getElementById('cartTotal').textContent = cartTotalPrice() + " ₪";
+}
+updateCartUI();
+
+function openCart(){
+  document.getElementById('cartDrawer').classList.add('open');
+  document.getElementById('overlay').classList.add('show');
+}
+function closeCart(){
+  document.getElementById('cartDrawer').classList.remove('open');
+  if(!document.getElementById('checkoutModal').classList.contains('show')){
+    document.getElementById('overlay').classList.remove('show');
+  }
+}
+function closeAllOverlays(){
+  closeCart();
+  closeCheckout();
+}
+
+/* ================= CHECKOUT ================= */
+let deliveryMethod = 'delivery';
+function setMethod(method){
+  deliveryMethod = method;
+  document.getElementById('btnDelivery').classList.toggle('active', method==='delivery');
+  document.getElementById('btnPickup').classList.toggle('active', method==='pickup');
+  document.getElementById('addressFields').classList.toggle('show', method==='delivery');
+  renderOrderSummary();
+}
+
+function renderOrderSummary(){
+  const ids = Object.keys(cart);
+  const lines = ids.map(id=>{
+    const p = products.find(pr=>pr.id==id);
+    const qty = cart[id];
+    return `<div class="sum-row"><span>${p.name} × ${qty}</span><span>${p.price*qty} ₪</span></div>`;
+  }).join("");
+  const methodLabel = deliveryMethod === 'delivery' ? 'משלוח עד הבית' : 'איסוף עצמי';
+  document.getElementById('orderSummary').innerHTML = `
+    ${lines}
+    <div class="sum-row"><span>אופן קבלה</span><span>${methodLabel}</span></div>
+    <div class="sum-row sum-total"><span>סה"כ לתשלום</span><span>${cartTotalPrice()} ₪</span></div>`;
+}
+
+function openCheckout(){
+  if(cartTotalCount() === 0) return;
+  renderOrderSummary();
+  document.getElementById('checkoutModal').classList.add('show');
+  document.getElementById('overlay').classList.add('show');
+}
+function closeCheckout(){
+  document.getElementById('checkoutModal').classList.remove('show');
+  if(!document.getElementById('cartDrawer').classList.contains('open')){
+    document.getElementById('overlay').classList.remove('show');
+  }
+}
+
+function submitOrder(e){
+  e.preventDefault();
+  const name = document.getElementById('custName').value.trim();
+  const phone = document.getElementById('custPhone').value.trim();
+  const email = document.getElementById('custEmail').value.trim();
+
+  let addressText = "איסוף עצמי מהחנות";
+  if(deliveryMethod === 'delivery'){
+    const city = document.getElementById('custCity').value.trim();
+    const street = document.getElementById('custStreet').value.trim();
+    const houseNum = document.getElementById('custHouseNum').value.trim();
+    const apt = document.getElementById('custApt').value.trim();
+    const notes = document.getElementById('custNotes').value.trim();
+    addressText = `${street} ${houseNum}${apt ? ', דירה '+apt : ''}, ${city}` + (notes ? ` (הערות: ${notes})` : '');
+  }
+
+  const orderLines = Object.entries(cart).map(([id,qty])=>{
+    const p = products.find(pr=>pr.id==id);
+    return `- ${p.name} × ${qty} = ${p.price*qty} ₪`;
+  }).join("\n");
+
+  const total = cartTotalPrice();
+  const methodLabel = deliveryMethod === 'delivery' ? 'משלוח עד הבית' : 'איסוף עצמי';
+
+  const waMessage =
+`הזמנה חדשה - אבהתנא אתרוגים 🍋
+שם: ${name}
+טלפון: ${phone}
+${email ? 'אימייל: ' + email + '\n' : ''}אופן קבלה: ${methodLabel}
+כתובת: ${addressText}
+
+פירוט ההזמנה:
+${orderLines}
+
+סה"כ לתשלום: ${total} ₪`;
+
+  // build success summary
+  document.getElementById('successSummary').innerHTML = `
+    <div class="sum-row"><span>שם</span><span>${name}</span></div>
+    <div class="sum-row"><span>טלפון</span><span dir="ltr">${phone}</span></div>
+    <div class="sum-row"><span>אופן קבלה</span><span>${methodLabel}</span></div>
+    <div class="sum-row"><span>כתובת</span><span>${addressText}</span></div>
+    <div class="sum-row sum-total"><span>סה"כ</span><span>${total} ₪</span></div>`;
+
+  // open WhatsApp with prefilled order message
+  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waMessage)}`, '_blank');
+
+  // reset
+  cart = {};
+  updateCartUI();
+  document.getElementById('checkoutForm').reset();
+  setMethod('delivery');
+
+  closeCheckout();
+  document.getElementById('successModal').classList.add('show');
+  document.getElementById('overlay').classList.add('show');
+}
+
+function closeSuccess(){
+  document.getElementById('successModal').classList.remove('show');
+  document.getElementById('overlay').classList.remove('show');
+}
+
+/* ================= GALLERY ================= */
+const galleryLayout = [
+  {tag:"בוסתן האתרוגים", tall:true},
+  {tag:"קטיף ביד"},
+  {tag:"בדיקת הידור"},
+  {tag:"אריזה בעדינות", wide:true},
+  {tag:"אתרוג ופיטם"},
+  {tag:"ארבעת המינים"},
+  {tag:"שולחן החג", tall:true},
+  {tag:"מסורת מרוקאית"}
+];
+const galleryGrid = document.getElementById('galleryGrid');
+galleryLayout.forEach((g,i)=>{
+  const div = document.createElement('div');
+  div.className = 'gallery-item' + (g.tall ? ' g-tall':'') + (g.wide ? ' g-wide':'');
+  div.innerHTML = `<img src="gallery${i+1}.png" alt="${g.tag}" onerror="this.remove();"><span>${g.tag}</span>`;
+  galleryGrid.appendChild(div);
+});
+
+/* ================= FAQ ================= */
+const faqData = [
+  {q:"מה ההבדל בין האתרוג המרוקאי לאתרוג התימני?", a:"האתרוג המרוקאי מתאפיין בצורתו האליפטית, בקליפתו החלקה ובמסורת ארוכת שנים מיהדות מרוקו. האתרוג התימני, בהידור ׳יביע אומר׳, מגיע ממסורת תימנית ומוקפד בסימנים הלכתיים נוספים. שני הזנים מהודרים ומתאימים למצווה."},
+  {q:"איך אני יודע שהאתרוג כשר ומהודר?", a:"כל אתרוג עובר בדיקה אישית שלנו הכוללת בדיקת פיטם, עוקץ, נקיון מחזזית ומראה כללי, בהתאם להלכה. אנו מספקים תעודת הידור לכל אתרוג הנרכש."},
+  {q:"עד מתי ניתן להזמין לפני החג?", a:"מומלץ להזמין מוקדם ככל האפשר, שכן הכמות מוגבלת. ניתן להזמין עד ערב חג הסוכות, בכפוף למלאי הקיים."},
+  {q:"האם יש אפשרות לראות את האתרוג לפני הרכישה?", a:"בהחלט. ניתן לתאם הגעה לחנות לבחירה אישית, וכן אנו שולחים תמונות מפורטות של האתרוג הספציפי לפני האישור הסופי במשלוח."},
+  {q:"מהם זמני המשלוח?", a:"משלוחים מבוצעים תוך 1-3 ימי עסקים באריזה מוקפדת ומוגנת, כדי לשמור על שלמות הפיטם והעוקץ. ניתן גם לבחור באיסוף עצמי מהחנות."},
+  {q:"האם ניתן להחזיר או להחליף מוצר?", a:"במקרה של פגם בזיהוי כשרות שהתגלה מיד עם הקבלה, ניתן ליצור עמנו קשר בוואטסאפ ונטפל בכך בהקדם ובמקצועיות."}
+];
+const faqList = document.getElementById('faqList');
+faqData.forEach((f,i)=>{
+  const item = document.createElement('div');
+  item.className = 'faq-item';
+  item.innerHTML = `
+    <button class="faq-q" onclick="toggleFaq(${i})">
+      <span>${f.q}</span><span class="plus">+</span>
+    </button>
+    <div class="faq-a" id="faqA${i}"><p>${f.a}</p></div>`;
+  faqList.appendChild(item);
+});
+function toggleFaq(i){
+  const item = faqList.children[i];
+  const a = document.getElementById('faqA'+i);
+  const isOpen = item.classList.contains('open');
+  faqList.querySelectorAll('.faq-item').forEach((it,idx)=>{
+    it.classList.remove('open');
+    document.getElementById('faqA'+idx).style.maxHeight = null;
+  });
+  if(!isOpen){
+    item.classList.add('open');
+    a.style.maxHeight = a.scrollHeight + "px";
+  }
+}
+
+/* ================= TOAST ================= */
+let toastTimer;
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> t.classList.remove('show'), 2400);
+}
+
+/* ================= SCROLL REVEAL ================= */
+function observeReveals(){
+  const els = document.querySelectorAll('.reveal:not(.visible)');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        entry.target.classList.add('visible');
+        io.unobserve(entry.target);
+      }
+    });
+  }, {threshold:0.12});
+  els.forEach(el=>io.observe(el));
+}
+observeReveals();
+
+/* Esc key closes overlays */
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape') closeAllOverlays();
+});
+</script>
 </body>
-
 </html>
