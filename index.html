@@ -519,6 +519,17 @@
     .field-row{grid-template-columns:1fr;}
   }
 </style>
+<style>
+/* 2026 visual refresh */
+:root{--paper:#fffdf7;--cream:#f2f8eb;--sans:'Heebo',Arial,sans-serif;--serif:'Frank Ruhl Libre','Noto Serif Hebrew',serif}
+body{font-size:17px;line-height:1.75;background:#fffdf7}.hero{min-height:92vh;color:var(--green-deep);background:linear-gradient(135deg,#f4ffe9 0%,#dff5c9 48%,#cbeab4 100%)}
+.hero-bg-slide{opacity:0!important}.hero::before{content:"";position:absolute;width:520px;height:520px;border-radius:50%;background:#fff9;filter:blur(5px);inset:auto auto -220px -100px;z-index:-1}.hero::after{background:radial-gradient(circle at 78% 20%,#fff9,transparent 32%),linear-gradient(120deg,rgba(221,246,199,.35),rgba(151,205,119,.2))}
+.hero h1{color:var(--green-deep);background:none;-webkit-text-fill-color:var(--green-deep);text-shadow:0 8px 30px #5c8d4933;letter-spacing:-.02em}.hero h2{color:#31543a;font-style:normal;font-weight:500}.hero-eyebrow,.scroll-cue{color:#52773e}.btn-outline{border-color:#315b3c;color:#21442c}.btn-outline:hover{background:#fff9}.section-sub{font-size:1.1rem;line-height:1.9}.section-title{letter-spacing:-.015em}
+.story{background:#fff}.story-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}.story-card{padding:32px;border-radius:22px;background:linear-gradient(145deg,#f6fbeF,#fff);border:1px solid #dce9d1;box-shadow:0 18px 42px -30px #173e28}.story-card b{display:block;font:700 1.4rem var(--serif);color:var(--green-deep);margin-bottom:12px}.story-card p{color:var(--ink-soft)}
+.gallery-stage{max-width:980px;margin:auto}.gallery-feature{position:relative;aspect-ratio:16/9;border-radius:24px;overflow:hidden;background:#dbeacb;box-shadow:0 24px 55px -28px #12331f}.gallery-feature img{width:100%;height:100%;object-fit:cover}.gallery-arrow{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;background:#fffddf;color:var(--green-deep);font-size:1.6rem;box-shadow:0 5px 18px #0003}.gallery-prev{right:18px}.gallery-next{left:18px}.gallery-counter{position:absolute;bottom:16px;right:18px;background:#12331fdd;color:#fff;padding:7px 15px;border-radius:999px;font-size:.85rem}.gallery-open{position:absolute;bottom:16px;left:18px;background:#fff;color:var(--green-deep);padding:9px 16px;border-radius:999px;font-weight:700}.gallery-thumbs{display:flex;gap:12px;overflow-x:auto;padding:18px 2px 8px;scrollbar-color:var(--green) transparent}.gallery-thumb{flex:0 0 110px;height:76px;border-radius:12px;overflow:hidden;border:3px solid transparent;opacity:.72}.gallery-thumb.active{border-color:var(--gold);opacity:1}.gallery-thumb img{width:100%;height:100%;object-fit:cover}
+.lightbox{position:fixed;inset:0;z-index:1200;background:#07130dea;display:none;align-items:center;justify-content:center;padding:26px}.lightbox.open{display:flex}.lightbox img{max-width:min(1100px,88vw);max-height:86vh;object-fit:contain}.lightbox-close{position:absolute;top:20px;left:25px;color:#fff;font-size:2rem}.lightbox .gallery-arrow{position:absolute}.lightbox-count{position:absolute;bottom:18px;color:#fff;background:#0008;padding:7px 18px;border-radius:99px}
+@media(max-width:760px){body{font-size:16px}.story-grid{grid-template-columns:1fr}.hero{min-height:88vh;padding-inline:20px}.gallery-feature{aspect-ratio:4/3}.gallery-arrow{width:42px;height:42px}.gallery-thumb{flex-basis:86px;height:62px}}
+</style>
 </head>
 <body>
 
@@ -567,7 +578,7 @@
   <div class="hero-bg-layer" id="heroBgLayer"></div>
   <div class="hero-eyebrow">מסורת יהודית · 100 שנה · טוהר והידור</div>
   <h1>אבהתנא<br>אתרוגים מרוקאים</h1>
-  <h2>אתרוגי אבהתנא — אתרוגים מרוקאים ואתרוגים תימניים "יביע אומר"</h2>
+  <h2>מאה שנות מסורת, בחירה אישית והידור ללא פשרות — מהבוסתן ועד אליכם לחג</h2>
   <div class="hero-cta-row">
     <a href="#products" class="btn btn-order-now">✦ הזמנה עכשיו</a>
     <a href="#about" class="btn btn-outline">קראו את הסיפור שלנו</a>
@@ -596,6 +607,8 @@
   </div>
 </section>
 
+<section class="story" id="tradition"><div class="container"><div class="eyebrow">דרך של מסורת</div><h2 class="section-title reveal">מה הופך אתרוג לאבהתנא?</h2><p class="section-sub reveal">אצלנו הדרך אל האתרוג המהודר מתחילה הרבה לפני הקטיף. אנחנו מלווים את העץ, בוחנים כל פרי באור טבעי ומכינים אותו למסע בטוח אל שולחן החג.</p><div class="story-grid"><article class="story-card reveal"><b>גידול מתוך ידע</b><p>הניסיון המשפחתי עובר מדור לדור ומחבר בין מסורת יהדות מרוקו לעבודת בוסתן מדויקת. תשומת לב לעונה, לעץ ולפרי מעניקה לכל אתרוג את האופי המיוחד שלו.</p></article><article class="story-card reveal"><b>בדיקה אישית</b><p>כל אתרוג נבחן בנפרד: צורה, ניקיון, גוון, עוקץ ופיטם. אנו מסבירים בשפה ברורה את דרגת ההידור כדי שתוכלו לבחור בביטחון ובהתאם למנהג המשפחה.</p></article><article class="story-card reveal"><b>אריזה ושירות</b><p>לאחר הבחירה האתרוג נארז בעדינות ובהגנה מתאימה. צוות המשפחה זמין לשאלות, לבחירה מרחוק ולתיאום משלוח או איסוף, מתוך אחריות עד החג.</p></article></div></div></section>
+
 <!-- ============ PRODUCTS ============ -->
 <section class="products" id="products">
   <div class="container">
@@ -621,9 +634,14 @@
     <div class="eyebrow">רגעים מהבוסתן</div>
     <h2 class="section-title reveal">גלריית תמונות</h2>
     <p class="section-sub reveal">מהבוסתן המרוקאי אל שולחן החג שלכם</p>
-    <div class="gallery-grid reveal" id="galleryGrid"></div>
+    <div class="gallery-stage reveal" aria-label="גלריית אתרוגים">
+      <div class="gallery-feature"><img id="galleryMain" src="1.png" alt="תמונה 1 מגלריית אבהתנא"><button class="gallery-arrow gallery-prev" type="button" aria-label="לתמונה הקודמת">‹</button><button class="gallery-arrow gallery-next" type="button" aria-label="לתמונה הבאה">›</button><span class="gallery-counter" id="galleryCounter"></span><button class="gallery-open" id="galleryOpen" type="button">הגדלה ⛶</button></div>
+      <div class="gallery-thumbs" id="galleryThumbs" aria-label="תמונות ממוזערות"></div>
+    </div>
   </div>
 </section>
+
+<div class="lightbox" id="galleryLightbox" role="dialog" aria-modal="true" aria-label="תצוגת תמונה מוגדלת"><button class="lightbox-close" type="button" aria-label="סגירה">×</button><img id="lightboxImage" alt=""><button class="gallery-arrow gallery-prev" type="button" aria-label="לתמונה הקודמת">‹</button><button class="gallery-arrow gallery-next" type="button" aria-label="לתמונה הבאה">›</button><span class="lightbox-count" id="lightboxCount"></span></div>
 
 <!-- ============ FAQ ============ -->
 <section class="faq" id="faq">
@@ -1140,24 +1158,19 @@ function closeSuccess(){
   document.getElementById('overlay').classList.remove('show');
 }
 
-/* ================= GALLERY ================= */
-const galleryLayout = [
-  {tag:"בוסתן האתרוגים", tall:true},
-  {tag:"קטיף ביד"},
-  {tag:"בדיקת הידור"},
-  {tag:"אריזה בעדינות", wide:true},
-  {tag:"אתרוג ופיטם"},
-  {tag:"ארבעת המינים"},
-  {tag:"שולחן החג", tall:true},
-  {tag:"מסורת מרוקאית"}
-];
-const galleryGrid = document.getElementById('galleryGrid');
-galleryLayout.forEach((g,i)=>{
-  const div = document.createElement('div');
-  div.className = 'gallery-item' + (g.tall ? ' g-tall':'') + (g.wide ? ' g-wide':'');
-  div.innerHTML = `<img src="gallery${i+1}.png" alt="${g.tag}" onerror="this.remove();"><span>${g.tag}</span>`;
-  galleryGrid.appendChild(div);
-});
+/* ================= PROFESSIONAL GALLERY ================= */
+const galleryImages = Array.from({length:20},(_,i)=>({src:`${i+1}.png`,alt:`אתרוגים ומסורת אבהתנא — תמונה ${i+1}`}));
+let galleryIndex=0, galleryTimer;
+const mainImage=document.getElementById('galleryMain'),counter=document.getElementById('galleryCounter'),thumbs=document.getElementById('galleryThumbs'),lightbox=document.getElementById('galleryLightbox'),lightboxImage=document.getElementById('lightboxImage'),lightboxCount=document.getElementById('lightboxCount');
+galleryImages.forEach((image,i)=>{const button=document.createElement('button');button.className='gallery-thumb';button.type='button';button.setAttribute('aria-label',`הצגת תמונה ${i+1}`);button.innerHTML=`<img src="${image.src}" alt="" loading="lazy">`;button.onclick=()=>showGalleryImage(i,true);thumbs.appendChild(button)});
+function showGalleryImage(index,userAction=false){galleryIndex=(index+galleryImages.length)%galleryImages.length;const image=galleryImages[galleryIndex];mainImage.src=image.src;mainImage.alt=image.alt;lightboxImage.src=image.src;lightboxImage.alt=image.alt;counter.textContent=`${galleryIndex+1} / ${galleryImages.length}`;lightboxCount.textContent=counter.textContent;document.querySelectorAll('.gallery-thumb').forEach((el,i)=>el.classList.toggle('active',i===galleryIndex));document.querySelectorAll('.gallery-thumb')[galleryIndex]?.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});if(userAction)restartGalleryTimer()}
+function stepGallery(delta){showGalleryImage(galleryIndex+delta,true)}
+function restartGalleryTimer(){clearInterval(galleryTimer);galleryTimer=setInterval(()=>showGalleryImage(galleryIndex+1),5000)}
+document.querySelectorAll('.gallery-prev').forEach(button=>button.onclick=()=>stepGallery(-1));document.querySelectorAll('.gallery-next').forEach(button=>button.onclick=()=>stepGallery(1));
+document.getElementById('galleryOpen').onclick=()=>{lightbox.classList.add('open');document.body.style.overflow='hidden'};document.querySelector('.lightbox-close').onclick=closeLightbox;lightbox.addEventListener('click',e=>{if(e.target===lightbox)closeLightbox()});function closeLightbox(){lightbox.classList.remove('open');document.body.style.overflow=''}
+document.addEventListener('keydown',e=>{if(!lightbox.classList.contains('open'))return;if(e.key==='Escape')closeLightbox();if(e.key==='ArrowRight')stepGallery(-1);if(e.key==='ArrowLeft')stepGallery(1)});
+let touchX=0;lightbox.addEventListener('touchstart',e=>touchX=e.changedTouches[0].clientX,{passive:true});lightbox.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-touchX;if(Math.abs(dx)>45)stepGallery(dx>0?-1:1)},{passive:true});
+showGalleryImage(0);restartGalleryTimer();
 
 /* ================= FAQ ================= */
 const faqData = [
