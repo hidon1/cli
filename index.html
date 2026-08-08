@@ -267,10 +267,10 @@
     background:var(--paper);border:1px solid rgba(30,77,47,.12);
     border-radius:var(--radius);overflow:hidden;
     box-shadow:0 10px 30px -18px rgba(18,51,31,.35);
-    transition:transform .35s ease, box-shadow .35s ease;
+    transition:transform .4s cubic-bezier(.2,.8,.2,1), box-shadow .4s ease, border-color .4s ease;
     display:flex;flex-direction:column;
   }
-  .product-card:hover{transform:translateY(-8px);box-shadow:0 22px 40px -18px rgba(18,51,31,.45);}
+  .product-card:hover{transform:translateY(-8px);box-shadow:0 22px 40px -18px rgba(18,51,31,.45);border-color:rgba(201,162,75,.55);}
   .product-media{
     position:relative;aspect-ratio:1/1;overflow:hidden;
     background:linear-gradient(150deg,#e7ddc0,#f6efdd);
@@ -295,6 +295,19 @@
   }
   .add-btn:hover{background:var(--green-light);transform:scale(1.04);}
   .add-btn.added{background:var(--gold);color:var(--green-deep);}
+  .product-quantity{
+    display:flex;align-items:center;gap:8px;padding:4px;border:1px solid rgba(30,77,47,.22);
+    border-radius:999px;background:#fff;box-shadow:0 5px 16px rgba(18,51,31,.08);
+  }
+  .product-qty-btn{
+    width:31px;height:31px;border-radius:50%;display:grid;place-items:center;
+    background:var(--green);color:#fff;font-size:1.15rem;line-height:1;
+    transition:transform .2s ease,background .2s ease,opacity .2s ease;
+  }
+  .product-qty-btn:hover:not(:disabled){background:var(--green-light);transform:scale(1.1);}
+  .product-qty-btn:active:not(:disabled){transform:scale(.92);}
+  .product-qty-btn:disabled{opacity:.32;cursor:not-allowed;}
+  .product-qty{min-width:22px;text-align:center;font-weight:800;color:var(--green-deep);font-variant-numeric:tabular-nums;}
 
   /* ===== Gallery ===== */
   .gallery{background:var(--cream);}
@@ -490,7 +503,8 @@
     animation:pop .5s cubic-bezier(.2,.9,.3,1.4);
   }
   @keyframes pop{from{transform:scale(0);}to{transform:scale(1);}}
-  .success-icon svg{width:36px;height:36px;}
+  .success-icon svg{width:36px;height:36px;animation:drawCheck .45s .2s both;}
+  @keyframes drawCheck{from{opacity:0;transform:scale(.5) rotate(-12deg);}to{opacity:1;transform:scale(1) rotate(0);}}
 
   /* ===== Toast ===== */
   .toast{
@@ -503,7 +517,7 @@
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto;}
 
   /* ===== Scroll reveal ===== */
-  .reveal{opacity:0;transform:translateY(30px);transition:opacity .8s ease, transform .8s ease;}
+  .reveal{opacity:0;transform:translateY(30px) scale(.985);transition:opacity .8s ease, transform .8s cubic-bezier(.2,.8,.2,1);transition-delay:var(--reveal-delay,0ms);}
   .reveal.visible{opacity:1;transform:translateY(0);}
 
   /* ===== Responsive ===== */
@@ -691,7 +705,7 @@ body{font-size:17px;line-height:1.75;background:#fffdf7}.hero{min-height:92vh;co
 <!-- ============ WHATSAPP FLOAT ============ -->
 <a class="whatsapp-float" id="waFloat" target="_blank" rel="noopener" aria-label="שלחו לנו הודעת וואטסאפ">
   <span class="wa-ping"></span>
-  <svg viewBox="0 0 32 32" fill="currentColor"><path d="M16.001 3C9.373 3 4 8.373 4 15c0 2.386.696 4.6 1.898 6.472L4 29l7.72-1.867A11.94 11.94 0 0 0 16 27c6.628 0 12-5.373 12-12S22.629 3 16.001 3zm0 21.8c-1.99 0-3.845-.585-5.404-1.593l-.388-.244-4.583 1.107 1.132-4.47-.253-.396A9.77 9.77 0 0 1 5.2 15c0-5.963 4.837-10.8 10.801-10.8 5.963 0 10.8 4.837 10.8 10.8s-4.837 10.8-10.8 10.8zm5.94-8.096c-.325-.163-1.925-.95-2.223-1.06-.298-.108-.516-.162-.733.163-.217.326-.84 1.06-1.03 1.278-.19.217-.38.244-.705.081-.325-.163-1.372-.505-2.613-1.61-.966-.861-1.618-1.925-1.808-2.25-.19-.326-.02-.502.143-.665.146-.146.325-.38.488-.57.163-.19.217-.326.325-.543.108-.217.054-.407-.027-.57-.081-.163-.733-1.766-1.005-2.418-.264-.634-.532-.548-.733-.558l-.624-.011c-.217 0-.57.081-.868.407-.298.325-1.137 1.112-1.137 2.712 0 1.6 1.164 3.146 1.326 3.363.163.217 2.29 3.497 5.548 4.905.775.334 1.38.534 1.85.684.777.247 1.484.212 2.043.129.623-.093 1.925-.787 2.196-1.548.271-.76.271-1.412.19-1.548-.081-.136-.298-.217-.624-.38z"/></svg>
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.074-.297-.148-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.074-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.273.297-1.04 1.016-1.04 2.479s1.065 2.875 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.262.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.002-5.45 4.436-9.893 9.899-9.893a9.82 9.82 0 0 1 7.021 2.91 9.83 9.83 0 0 1 2.9 7.016c-.003 5.45-4.447 9.894-9.936 9.894m8.413-18.297A11.82 11.82 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.14 1.588 5.945L.057 24l6.305-1.654a11.9 11.9 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.82 11.82 0 0 0-3.48-8.413Z"/></svg>
 </a>
 
 <!-- ============ CART DRAWER ============ -->
@@ -794,7 +808,7 @@ body{font-size:17px;line-height:1.75;background:#fffdf7}.hero{min-height:92vh;co
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
@@ -897,6 +911,7 @@ const products = productDefs.map((p,i)=>({
   price:PRODUCT_PRICE,
   ...p
 }));
+let cart = JSON.parse(localStorage.getItem('avhatnaCart') || '{}'); // id -> qty
 
 const grid = document.getElementById('productsGrid');
 function renderProducts(filter){
@@ -917,14 +932,16 @@ function renderProducts(filter){
           <div class="product-sub">${p.sub}</div>
           <div class="product-footer">
             <div class="product-price">${p.price} <span>₪</span></div>
-            <button class="add-btn" onclick="addToCart(${p.id}, this)">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
-              הוספה לסל
-            </button>
+            <div class="product-quantity" aria-label="בחירת כמות עבור ${p.name}">
+              <button class="product-qty-btn" type="button" onclick="changeQty(${p.id},-1)" aria-label="הפחתת כמות" data-product-minus="${p.id}">−</button>
+              <span class="product-qty" data-product-qty="${p.id}" aria-live="polite">${cart[p.id] || 0}</span>
+              <button class="product-qty-btn" type="button" onclick="addToCart(${p.id})" aria-label="הוספת יחידה">+</button>
+            </div>
           </div>
         </div>`;
       grid.appendChild(card);
     });
+  updateProductQuantityUI();
   observeReveals();
 }
 renderProducts('all');
@@ -938,18 +955,11 @@ document.querySelectorAll('.filter-btn').forEach(btn=>{
 });
 
 /* ================= CART ================= */
-let cart = {}; // id -> qty
 
-function addToCart(id, btnEl){
+function addToCart(id){
   cart[id] = (cart[id] || 0) + 1;
   updateCartUI();
   showToast("המוצר נוסף לסל הקניות ✦");
-  if(btnEl){
-    btnEl.classList.add('added');
-    const original = btnEl.innerHTML;
-    btnEl.innerHTML = "נוסף ✓";
-    setTimeout(()=>{ btnEl.classList.remove('added'); btnEl.innerHTML = original; }, 1200);
-  }
 }
 
 function changeQty(id, delta){
@@ -974,6 +984,8 @@ function cartTotalPrice(){
 }
 
 function updateCartUI(){
+  localStorage.setItem('avhatnaCart', JSON.stringify(cart));
+  updateProductQuantityUI();
   document.getElementById('cartCount').textContent = cartTotalCount();
   const itemsEl = document.getElementById('cartItems');
   const ids = Object.keys(cart);
@@ -1007,6 +1019,10 @@ function updateCartUI(){
   }
   document.getElementById('cartTotal').textContent = cartTotalPrice() + " ₪";
 }
+function updateProductQuantityUI(){
+  document.querySelectorAll('[data-product-qty]').forEach(el=>el.textContent=cart[el.dataset.productQty] || 0);
+  document.querySelectorAll('[data-product-minus]').forEach(btn=>btn.disabled=!(cart[btn.dataset.productMinus] > 0));
+}
 updateCartUI();
 
 function openCart(){
@@ -1022,6 +1038,7 @@ function closeCart(){
 function closeAllOverlays(){
   closeCart();
   closeCheckout();
+  closeSuccess();
 }
 
 /* ================= CHECKOUT ================= */
@@ -1087,10 +1104,6 @@ async function submitOrder(e){
     const p = products.find(pr=>pr.id==id);
     return { productId:p.id, name:p.name, category:p.cat, quantity:qty, unitPrice:p.price, lineTotal:p.price*qty };
   });
-  const orderLines = orderItems.map(item =>
-    `- ${item.name} × ${item.quantity} = ${item.lineTotal} ₪`
-  ).join("\n");
-
   const total = cartTotalPrice();
   const methodLabel = deliveryMethod === 'delivery' ? 'משלוח עד הבית' : 'איסוף עצמי';
 
@@ -1110,19 +1123,6 @@ async function submitOrder(e){
       customerNotes: address.notes || ""
     });
 
-    const waMessage =
-`הזמנה חדשה - אבהתנא אתרוגים 🍋
-מספר הזמנה: ${saved.orderNumber}
-שם: ${name}
-טלפון: ${phone}
-${email ? 'אימייל: ' + email + '\n' : ''}אופן קבלה: ${methodLabel}
-כתובת: ${addressText}
-
-פירוט ההזמנה:
-${orderLines}
-
-סה"כ לתשלום: ${total} ₪`;
-
     // build success summary
     document.getElementById('successSummary').innerHTML = `
     <div class="sum-row"><span>מספר הזמנה</span><strong dir="ltr">${saved.orderNumber}</strong></div>
@@ -1132,10 +1132,7 @@ ${orderLines}
     <div class="sum-row"><span>כתובת</span><span>${addressText}</span></div>
     <div class="sum-row sum-total"><span>סה"כ</span><span>${total} ₪</span></div>`;
 
-    // Open WhatsApp only after Firebase confirms the final order was stored.
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waMessage)}`, '_blank');
-
-  // reset
+    // Show confirmation immediately after Firebase confirms the order was stored.
     cart = {};
     updateCartUI();
     document.getElementById('checkoutForm').reset();
@@ -1163,7 +1160,7 @@ const galleryImages = Array.from({length:20},(_,i)=>({src:`${i+1}.png`,alt:`את
 let galleryIndex=0, galleryTimer;
 const mainImage=document.getElementById('galleryMain'),counter=document.getElementById('galleryCounter'),thumbs=document.getElementById('galleryThumbs'),lightbox=document.getElementById('galleryLightbox'),lightboxImage=document.getElementById('lightboxImage'),lightboxCount=document.getElementById('lightboxCount');
 galleryImages.forEach((image,i)=>{const button=document.createElement('button');button.className='gallery-thumb';button.type='button';button.setAttribute('aria-label',`הצגת תמונה ${i+1}`);button.innerHTML=`<img src="${image.src}" alt="" loading="lazy">`;button.onclick=()=>showGalleryImage(i,true);thumbs.appendChild(button)});
-function showGalleryImage(index,userAction=false){galleryIndex=(index+galleryImages.length)%galleryImages.length;const image=galleryImages[galleryIndex];mainImage.src=image.src;mainImage.alt=image.alt;lightboxImage.src=image.src;lightboxImage.alt=image.alt;counter.textContent=`${galleryIndex+1} / ${galleryImages.length}`;lightboxCount.textContent=counter.textContent;document.querySelectorAll('.gallery-thumb').forEach((el,i)=>el.classList.toggle('active',i===galleryIndex));document.querySelectorAll('.gallery-thumb')[galleryIndex]?.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});if(userAction)restartGalleryTimer()}
+function showGalleryImage(index,userAction=false){galleryIndex=(index+galleryImages.length)%galleryImages.length;const image=galleryImages[galleryIndex];mainImage.src=image.src;mainImage.alt=image.alt;lightboxImage.src=image.src;lightboxImage.alt=image.alt;counter.textContent=`${galleryIndex+1} / ${galleryImages.length}`;lightboxCount.textContent=counter.textContent;const thumbList=document.querySelectorAll('.gallery-thumb');thumbList.forEach((el,i)=>el.classList.toggle('active',i===galleryIndex));if(userAction){const thumb=thumbList[galleryIndex];thumbs.scrollTo({left:thumb.offsetLeft-(thumbs.clientWidth-thumb.clientWidth)/2,behavior:'smooth'});restartGalleryTimer()}}
 function stepGallery(delta){showGalleryImage(galleryIndex+delta,true)}
 function restartGalleryTimer(){clearInterval(galleryTimer);galleryTimer=setInterval(()=>showGalleryImage(galleryIndex+1),5000)}
 document.querySelectorAll('.gallery-prev').forEach(button=>button.onclick=()=>stepGallery(-1));document.querySelectorAll('.gallery-next').forEach(button=>button.onclick=()=>stepGallery(1));
@@ -1219,6 +1216,7 @@ function showToast(msg){
 /* ================= SCROLL REVEAL ================= */
 function observeReveals(){
   const els = document.querySelectorAll('.reveal:not(.visible)');
+  els.forEach((el,index)=>el.style.setProperty('--reveal-delay',`${Math.min(index % 4,3)*70}ms`));
   const io = new IntersectionObserver((entries)=>{
     entries.forEach(entry=>{
       if(entry.isIntersecting){
