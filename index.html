@@ -93,8 +93,10 @@
 
   nav ul{display:flex;gap:30px;}
   nav a{
-    color:#f2ecd8;font-size:.92rem;font-weight:500;position:relative;padding:4px 0;
+    color:#101a13;font-size:.92rem;font-weight:600;position:relative;padding:4px 0;
+    transition:color .3s ease;
   }
+  header.scrolled nav a{color:#f2ecd8;}
   nav a::after{
     content:"";position:absolute;bottom:-2px;right:0;width:0;height:1px;background:var(--gold);
     transition:width .3s ease;
@@ -287,6 +289,7 @@
   .product-sub{font-size:.84rem;color:var(--ink-soft);margin-bottom:14px;flex:1;}
   .product-footer{display:flex;align-items:center;justify-content:space-between;margin-top:auto;}
   .product-price{font-family:var(--serif);font-weight:700;font-size:1.28rem;color:var(--green-deep);}
+  .product-sku{font-size:.72rem;font-weight:700;color:var(--ink-soft);margin-top:5px;direction:rtl;}
   .product-price span{font-size:.72rem;color:var(--ink-soft);font-weight:400;margin-right:3px;}
   .add-btn{
     display:flex;align-items:center;gap:6px;background:var(--green);color:#fff;
@@ -718,7 +721,9 @@ body{font-size:17px;line-height:1.75;background:#fffdf7}.hero{min-height:92vh;co
   </div>
   <div class="cart-items" id="cartItems"></div>
   <div class="cart-footer">
-    <div class="cart-total-row"><span>סה"כ לתשלום</span><span id="cartTotal">0 ₪</span></div>
+    <div class="cart-total-row"><span>מוצרים</span><span id="cartSubtotal">0 ₪</span></div>
+    <div class="cart-total-row"><span>משלוח עד הבית</span><span id="cartShipping">30 ₪</span></div>
+    <div class="cart-total-row"><strong>סה"כ לתשלום</strong><strong id="cartTotal">0 ₪</strong></div>
     <button class="checkout-btn" id="checkoutBtn" onclick="openCheckout()">מעבר לתשלום</button>
   </div>
 </div>
@@ -846,6 +851,8 @@ body{font-size:17px;line-height:1.75;background:#fffdf7}.hero{min-height:92vh;co
 /* ================= CONFIG ================= */
 const WHATSAPP_NUMBER = "972548407450";
 const PRODUCT_PRICE = 100;
+const DELIVERY_FEE = 30;
+let deliveryMethod = 'delivery';
 
 /* ================= HERO ROTATING BACKGROUND ================= */
 const heroBgNames = ["רקע אחד.png","רקע שתיים.png","רקע שלוש.png","רקע ארבע.png","רקע חמש.png"];
@@ -907,6 +914,7 @@ const productDefs = [
 ];
 const products = productDefs.map((p,i)=>({
   id:i+1,
+  sku:i+1,
   img:`${i+1}.png`,
   price:PRODUCT_PRICE,
   ...p
@@ -929,6 +937,7 @@ function renderProducts(filter){
         <div class="product-body">
           <div class="product-cat">${p.cat}</div>
           <div class="product-title">${p.name}</div>
+          <div class="product-sku">מק״ט: ${p.sku}</div>
           <div class="product-sub">${p.sub}</div>
           <div class="product-footer">
             <div class="product-price">${p.price} <span>₪</span></div>
@@ -982,6 +991,12 @@ function cartTotalPrice(){
     return sum + (p ? p.price*qty : 0);
   },0);
 }
+function deliveryFee(){
+  return deliveryMethod === 'delivery' && cartTotalCount() > 0 ? DELIVERY_FEE : 0;
+}
+function orderTotalPrice(){
+  return cartTotalPrice() + deliveryFee();
+}
 
 function updateCartUI(){
   localStorage.setItem('avhatnaCart', JSON.stringify(cart));
@@ -1017,7 +1032,9 @@ function updateCartUI(){
     }).join("");
     document.getElementById('checkoutBtn').disabled = false;
   }
-  document.getElementById('cartTotal').textContent = cartTotalPrice() + " ₪";
+  document.getElementById('cartSubtotal').textContent = cartTotalPrice() + " ₪";
+  document.getElementById('cartShipping').textContent = deliveryFee() + " ₪";
+  document.getElementById('cartTotal').textContent = orderTotalPrice() + " ₪";
 }
 function updateProductQuantityUI(){
   document.querySelectorAll('[data-product-qty]').forEach(el=>el.textContent=cart[el.dataset.productQty] || 0);
@@ -1042,12 +1059,12 @@ function closeAllOverlays(){
 }
 
 /* ================= CHECKOUT ================= */
-let deliveryMethod = 'delivery';
 function setMethod(method){
   deliveryMethod = method;
   document.getElementById('btnDelivery').classList.toggle('active', method==='delivery');
   document.getElementById('btnPickup').classList.toggle('active', method==='pickup');
   document.getElementById('addressFields').classList.toggle('show', method==='delivery');
+  updateCartUI();
   renderOrderSummary();
 }
 
@@ -1056,13 +1073,14 @@ function renderOrderSummary(){
   const lines = ids.map(id=>{
     const p = products.find(pr=>pr.id==id);
     const qty = cart[id];
-    return `<div class="sum-row"><span>${p.name} × ${qty}</span><span>${p.price*qty} ₪</span></div>`;
+    return `<div class="sum-row"><span>${p.name} · מק״ט ${p.sku} × ${qty}</span><span>${p.price*qty} ₪</span></div>`;
   }).join("");
   const methodLabel = deliveryMethod === 'delivery' ? 'משלוח עד הבית' : 'איסוף עצמי';
   document.getElementById('orderSummary').innerHTML = `
     ${lines}
     <div class="sum-row"><span>אופן קבלה</span><span>${methodLabel}</span></div>
-    <div class="sum-row sum-total"><span>סה"כ לתשלום</span><span>${cartTotalPrice()} ₪</span></div>`;
+    <div class="sum-row"><span>משלוח</span><span>${deliveryFee()} ₪</span></div>
+    <div class="sum-row sum-total"><span>סה"כ לתשלום</span><span>${orderTotalPrice()} ₪</span></div>`;
 }
 
 function openCheckout(){
@@ -1102,9 +1120,11 @@ async function submitOrder(e){
 
   const orderItems = Object.entries(cart).map(([id,qty])=>{
     const p = products.find(pr=>pr.id==id);
-    return { productId:p.id, name:p.name, category:p.cat, quantity:qty, unitPrice:p.price, lineTotal:p.price*qty };
+    return { productId:p.id, sku:p.sku, name:p.name, category:p.cat, quantity:qty, unitPrice:p.price, lineTotal:p.price*qty };
   });
-  const total = cartTotalPrice();
+  const subtotal = cartTotalPrice();
+  const shippingFee = deliveryFee();
+  const total = subtotal + shippingFee;
   const methodLabel = deliveryMethod === 'delivery' ? 'משלוח עד הבית' : 'איסוף עצמי';
 
   try {
@@ -1116,8 +1136,12 @@ async function submitOrder(e){
       address,
       addressText,
       items: orderItems,
-      subtotal: total,
+      subtotal,
+      shippingFee,
       total,
+      expectedTotal: total,
+      reportedPaymentAmount: null,
+      priceVerificationStatus: "pending",
       currency: "ILS",
       source: "website",
       customerNotes: address.notes || ""
