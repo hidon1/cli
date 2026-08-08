@@ -755,7 +755,7 @@
 
         <div class="order-summary" id="orderSummary"></div>
 
-        <button type="submit" class="submit-order">שליחת ההזמנה ✦</button>
+        <button type="submit" class="submit-order" id="submitOrderBtn">שליחת ההזמנה ✦</button>
       </form>
     </div>
   </div>
@@ -777,6 +777,38 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+  import { getFirestore, collection, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCC055QqoxmcEx81AsmaRpefPsToi2PdE",
+    authDomain: "etrigim.firebaseapp.com",
+    projectId: "etrigim",
+    storageBucket: "etrigim.firebasestorage.app",
+    messagingSenderId: "358598169198",
+    appId: "1:358598169198:web:2f2fbadd632f49b8964c7f",
+    measurementId: "G-52JY5KVEVV"
+  };
+
+  const db = getFirestore(initializeApp(firebaseConfig));
+
+  window.saveOrderToFirebase = async (order) => {
+    const orderRef = doc(collection(db, "orders"));
+    const day = new Date().toISOString().slice(2, 10).replaceAll("-", "");
+    const orderNumber = `ETR-${day}-${orderRef.id.slice(0, 6).toUpperCase()}`;
+    await setDoc(orderRef, {
+      ...order,
+      orderNumber,
+      status: "new",
+      paymentStatus: "unpaid",
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+    return { id: orderRef.id, orderNumber };
+  };
+</script>
 
 <script>
 /* ================= CONFIG ================= */
@@ -1011,32 +1043,58 @@ function closeCheckout(){
   }
 }
 
-function submitOrder(e){
+async function submitOrder(e){
   e.preventDefault();
+  const submitBtn = document.getElementById('submitOrderBtn');
+  if(submitBtn.disabled) return;
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'שומר את ההזמנה…';
   const name = document.getElementById('custName').value.trim();
   const phone = document.getElementById('custPhone').value.trim();
   const email = document.getElementById('custEmail').value.trim();
 
   let addressText = "איסוף עצמי מהחנות";
+  let address = { city:"", street:"", houseNumber:"", apartment:"", notes:"" };
   if(deliveryMethod === 'delivery'){
     const city = document.getElementById('custCity').value.trim();
     const street = document.getElementById('custStreet').value.trim();
     const houseNum = document.getElementById('custHouseNum').value.trim();
     const apt = document.getElementById('custApt').value.trim();
     const notes = document.getElementById('custNotes').value.trim();
+    address = { city, street, houseNumber:houseNum, apartment:apt, notes };
     addressText = `${street} ${houseNum}${apt ? ', דירה '+apt : ''}, ${city}` + (notes ? ` (הערות: ${notes})` : '');
   }
 
-  const orderLines = Object.entries(cart).map(([id,qty])=>{
+  const orderItems = Object.entries(cart).map(([id,qty])=>{
     const p = products.find(pr=>pr.id==id);
-    return `- ${p.name} × ${qty} = ${p.price*qty} ₪`;
-  }).join("\n");
+    return { productId:p.id, name:p.name, category:p.cat, quantity:qty, unitPrice:p.price, lineTotal:p.price*qty };
+  });
+  const orderLines = orderItems.map(item =>
+    `- ${item.name} × ${item.quantity} = ${item.lineTotal} ₪`
+  ).join("\n");
 
   const total = cartTotalPrice();
   const methodLabel = deliveryMethod === 'delivery' ? 'משלוח עד הבית' : 'איסוף עצמי';
 
-  const waMessage =
+  try {
+    if(typeof window.saveOrderToFirebase !== 'function') throw new Error('Firebase is not ready');
+    const saved = await window.saveOrderToFirebase({
+      customer: { name, phone, email },
+      deliveryMethod,
+      deliveryMethodLabel: methodLabel,
+      address,
+      addressText,
+      items: orderItems,
+      subtotal: total,
+      total,
+      currency: "ILS",
+      source: "website",
+      customerNotes: address.notes || ""
+    });
+
+    const waMessage =
 `הזמנה חדשה - אבהתנא אתרוגים 🍋
+מספר הזמנה: ${saved.orderNumber}
 שם: ${name}
 טלפון: ${phone}
 ${email ? 'אימייל: ' + email + '\n' : ''}אופן קבלה: ${methodLabel}
@@ -1047,26 +1105,34 @@ ${orderLines}
 
 סה"כ לתשלום: ${total} ₪`;
 
-  // build success summary
-  document.getElementById('successSummary').innerHTML = `
+    // build success summary
+    document.getElementById('successSummary').innerHTML = `
+    <div class="sum-row"><span>מספר הזמנה</span><strong dir="ltr">${saved.orderNumber}</strong></div>
     <div class="sum-row"><span>שם</span><span>${name}</span></div>
     <div class="sum-row"><span>טלפון</span><span dir="ltr">${phone}</span></div>
     <div class="sum-row"><span>אופן קבלה</span><span>${methodLabel}</span></div>
     <div class="sum-row"><span>כתובת</span><span>${addressText}</span></div>
     <div class="sum-row sum-total"><span>סה"כ</span><span>${total} ₪</span></div>`;
 
-  // open WhatsApp with prefilled order message
-  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waMessage)}`, '_blank');
+    // Open WhatsApp only after Firebase confirms the final order was stored.
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waMessage)}`, '_blank');
 
   // reset
-  cart = {};
-  updateCartUI();
-  document.getElementById('checkoutForm').reset();
-  setMethod('delivery');
+    cart = {};
+    updateCartUI();
+    document.getElementById('checkoutForm').reset();
+    setMethod('delivery');
 
-  closeCheckout();
-  document.getElementById('successModal').classList.add('show');
-  document.getElementById('overlay').classList.add('show');
+    closeCheckout();
+    document.getElementById('successModal').classList.add('show');
+    document.getElementById('overlay').classList.add('show');
+  } catch(error) {
+    console.error('Could not save order:', error);
+    showToast("לא הצלחנו לשמור את ההזמנה. בדקו את החיבור ונסו שוב.");
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'שליחת ההזמנה ✦';
+  }
 }
 
 function closeSuccess(){
