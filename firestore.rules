@@ -1,0 +1,19 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null;
+    }
+
+    match /orders/{orderId} {
+      // The storefront may only create a new, unpaid order with server-controlled states.
+      allow create: if request.resource.data.status == 'new'
+                    && request.resource.data.paymentStatus == 'unpaid'
+                    && request.resource.data.total is number
+                    && request.resource.data.total >= 0
+                    && request.resource.data.items is list
+                    && request.resource.data.customer is map;
+      allow read, update, delete: if isAdmin();
+    }
+  }
+}
